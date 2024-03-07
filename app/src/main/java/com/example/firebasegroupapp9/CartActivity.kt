@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -46,6 +47,13 @@ class CartActivity : AppCompatActivity() {
         val rView: RecyclerView = findViewById(R.id.recView)
         rView.layoutManager = LinearLayoutManager(this)
         rView.adapter = adapter
+
+
+        val gotoCheckout: Button = findViewById(R.id.gotoCheckout)
+
+        gotoCheckout.setOnClickListener {
+            startActivity(Intent(this@CartActivity, CheckoutActivity::class.java))
+        }
     }
 
 
