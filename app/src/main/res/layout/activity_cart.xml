@@ -34,4 +34,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="120dp" />
+
+    <Button
+        android:id="@+id/gotoCheckout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/teal"
+        android:layout_below="@+id/recView"
+        android:layout_marginTop="60dp"
+        android:layout_marginLeft="150dp"
+        android:text="Checkout" />
 </RelativeLayout>
