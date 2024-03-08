@@ -27,7 +27,7 @@ class CheckoutActivity : AppCompatActivity() {
         val txtAddress: EditText = findViewById(R.id.txtAddress)
         val txtPostalCode: EditText = findViewById(R.id.txtPostalCode)
         val txtCity: EditText = findViewById(R.id.txtCity)
-        val txtState: EditText = findViewById(R.id.txtState)
+        val txtProvince: EditText = findViewById(R.id.txtProvince)
         val txtCountry: EditText = findViewById(R.id.txtCountry)
         val txtNameOnCard: EditText = findViewById(R.id.txtNameOnCard)
         val txtCardNumber: EditText = findViewById(R.id.txtCardNumber)
@@ -44,14 +44,14 @@ class CheckoutActivity : AppCompatActivity() {
             val address = txtAddress.text.toString()
             val postalCode = txtPostalCode.text.toString()
             val city = txtCity.text.toString()
-            val state = txtState.text.toString()
+            val province = txtProvince.text.toString()
             val country = txtCountry.text.toString()
             val nameOnCard = txtNameOnCard.text.toString()
             val cardNumber = txtCardNumber.text.toString()
             val validity = txtValidity.text.toString()
             val cvv = txtCvv.text.toString()
 
-            if (validateName(firstname) && validateName(lastName) && validateName(nameOnCard) && validateEmail(email) && validatePhoneNumber(phoneNumber)) {
+            if (validateName(firstname) && validateName(lastName) && validateEmail(email) && validatePhoneNumber(phoneNumber) && validateCanadianAddress(address) && validateCanadianPostalCode(postalCode) && validateCanadianAddress(city) && validateCanadianAddress(province) && validateCountry(country) && validateName(nameOnCard) && validateCardNumber(cardNumber) && validateCVV(cvv)) {
                 val userId = FirebaseAuth.getInstance().currentUser?.uid
 
                 if (userId != null) {
@@ -65,7 +65,7 @@ class CheckoutActivity : AppCompatActivity() {
                     userData["address"] = address
                     userData["postalCode"] = postalCode
                     userData["city"] = city
-                    userData["state"] = state
+                    userData["province"] = province
                     userData["country"] = country
                     userData["nameOnCard"] = nameOnCard
                     userData["cardNumber"] = cardNumber
@@ -95,12 +95,13 @@ class CheckoutActivity : AppCompatActivity() {
         }
     }
     private fun validateName(name: String): Boolean {
-        if (name.isEmpty()) {
+        val trimmedName = name.trim()
+        if (trimmedName.isEmpty()) {
             Toast.makeText(this, "Please enter your name", Toast.LENGTH_SHORT).show()
             return false
         }
-        if (!name.matches(Regex("^[a-zA-Z]+\$"))) {
-            Toast.makeText(this, "Please enter a valid name", Toast.LENGTH_SHORT).show()
+        if (!trimmedName.matches(Regex("^[a-zA-Z]+(?: [a-zA-Z]+)*\$"))) {
+            Toast.makeText(this, "$name is INVALID!! Please enter a valid name", Toast.LENGTH_SHORT).show()
             return false
         }
         return true
@@ -118,7 +119,7 @@ class CheckoutActivity : AppCompatActivity() {
         }
     }
     private fun validatePhoneNumber(phoneNumber: String): Boolean {
-        val phonePattern = "^\\+1\\s\\d{3}\\s\\d{3}\\s\\d{4}\$"
+        val phonePattern = "^\\+1\\s\\d{10}\$"
         val pattern = Pattern.compile(phonePattern)
         val matcher = pattern.matcher(phoneNumber)
         if (matcher.matches()) {
@@ -128,4 +129,54 @@ class CheckoutActivity : AppCompatActivity() {
             return false
         }
     }
+    private fun validateCanadianAddress(address: String): Boolean {
+        val trimmedAddress = address.trim()
+        if (trimmedAddress.isNotEmpty()) {
+            return true
+        } else {
+            Toast.makeText(this, "$address is INVALID!!! Please enter a valid Canadian address, city, and province", Toast.LENGTH_SHORT).show()
+            return false
+        }
+    }
+    private fun validateCanadianPostalCode(postalCode: String): Boolean {
+        val canadianPostalCodePattern = "^[A-Za-z]\\d[A-Za-z]\\s?\\d[A-Za-z]\\d$"
+        val pattern = Pattern.compile(canadianPostalCodePattern)
+        val matcher = pattern.matcher(postalCode.trim())
+        if(matcher.matches()){
+            return matcher.matches()
+        } else {
+            Toast.makeText(this, "Please enter a valid Canadian postal code", Toast.LENGTH_SHORT).show()
+            return false
+        }
+    }
+    private fun validateCountry(country: String): Boolean {
+        val trimmedCountry = country.trim()
+        if (trimmedCountry.equals("canada", ignoreCase = true)){
+            return true
+        } else {
+            Toast.makeText(this, "Country INVALID!! Services are limited to Canada at the moment", Toast.LENGTH_SHORT).show()
+            return false
+        }
+    }
+    private fun validateCardNumber(cardNumber: String): Boolean {
+        val cardNumberRegex = "^(\\d{4}[- ]){3}\\d{4}|\\d{16}$"
+        if(cardNumber.trim().matches(Regex(cardNumberRegex))){
+            return true
+        } else {
+            Toast.makeText(this, "INVALID card number", Toast.LENGTH_SHORT).show()
+            return false
+        }
+    }
+
+    private fun validateCVV(cvv: String): Boolean {
+        val cvvRegex = "^\\d{3,4}$"
+        if(cvv.trim().matches(Regex(cvvRegex))){
+            return true
+        } else {
+            Toast.makeText(this, "INVALID cvv detected", Toast.LENGTH_SHORT).show()
+            return false
+        }
+    }
+
+
 }
