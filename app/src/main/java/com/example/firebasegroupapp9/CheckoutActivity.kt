@@ -153,6 +153,7 @@ class CheckoutActivity : AppCompatActivity() {
         }
         return true
     }
+
     private fun validateCanadianPostalCode(postalCode: String): Boolean {
         val canadianPostalCodePattern = "^[A-Za-z]\\d[A-Za-z]\\s?\\d[A-Za-z]\\d$"
         val pattern = Pattern.compile(canadianPostalCodePattern)
