@@ -51,7 +51,7 @@ class CheckoutActivity : AppCompatActivity() {
             val validity = txtValidity.text.toString()
             val cvv = txtCvv.text.toString()
 
-            if (validateName(firstname) && validateName(lastName) && validateEmail(email) && validatePhoneNumber(phoneNumber) && validateCanadianAddress(address) && validateCanadianPostalCode(postalCode) && validateCanadianAddress(city) && validateCanadianAddress(province) && validateCountry(country) && validateName(nameOnCard) && validateCardNumber(cardNumber) && validateCVV(cvv)) {
+            if (validateName(firstname) && validateName(lastName) && validateEmail(email) && validatePhoneNumber(phoneNumber) && validateStreetAddress(address) && validateCanadianPostalCode(postalCode) && validateCanadianAddress(city) && validateCanadianAddress(province) && validateCountry(country) && validateName(nameOnCard) && validateCardNumber(cardNumber) && validateCVV(cvv)) {
                 val userId = FirebaseAuth.getInstance().currentUser?.uid
 
                 if (userId != null) {
@@ -119,7 +119,7 @@ class CheckoutActivity : AppCompatActivity() {
         }
     }
     private fun validatePhoneNumber(phoneNumber: String): Boolean {
-        val phonePattern = "^\\+1\\s\\d{10}\$"
+        val phonePattern = "^\\+1\\d{10}\$"
         val pattern = Pattern.compile(phonePattern)
         val matcher = pattern.matcher(phoneNumber)
         if (matcher.matches()) {
@@ -129,14 +129,29 @@ class CheckoutActivity : AppCompatActivity() {
             return false
         }
     }
-    private fun validateCanadianAddress(address: String): Boolean {
-        val trimmedAddress = address.trim()
-        if (trimmedAddress.isNotEmpty()) {
-            return true
-        } else {
-            Toast.makeText(this, "$address is INVALID!!! Please enter a valid Canadian address, city, and province", Toast.LENGTH_SHORT).show()
+    private fun validateStreetAddress(streetAddress: String): Boolean {
+        val trimmedStreetAddress = streetAddress.trim()
+        if (trimmedStreetAddress.isEmpty()) {
+            Toast.makeText(this, "Please enter a valid Address", Toast.LENGTH_SHORT).show()
             return false
         }
+        if (!trimmedStreetAddress.matches(Regex("^[a-zA-Z0-9]+(?: [a-zA-Z0-9]+)*\$"))) {
+            Toast.makeText(this, "$streetAddress is INVALID!! Please enter a valid address", Toast.LENGTH_SHORT).show()
+            return false
+        }
+        return true
+    }
+    private fun validateCanadianAddress(address: String): Boolean {
+        val trimmedAddress = address.trim()
+        if (trimmedAddress.isEmpty()) {
+            Toast.makeText(this, "Please enter a valid City and Province", Toast.LENGTH_SHORT).show()
+            return false
+        }
+        if (!trimmedAddress.matches(Regex("^[a-zA-Z]+(?: [a-zA-Z]+)*\$"))) {
+            Toast.makeText(this, "$address is INVALID!! Please enter a valid City and Province", Toast.LENGTH_SHORT).show()
+            return false
+        }
+        return true
     }
     private fun validateCanadianPostalCode(postalCode: String): Boolean {
         val canadianPostalCodePattern = "^[A-Za-z]\\d[A-Za-z]\\s?\\d[A-Za-z]\\d$"
