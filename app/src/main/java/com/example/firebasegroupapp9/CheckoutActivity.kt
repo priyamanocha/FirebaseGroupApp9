@@ -2,13 +2,18 @@ package com.example.firebasegroupapp9
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import android.widget.Toolbar
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import java.util.regex.Pattern
 
 class CheckoutActivity : AppCompatActivity() {
@@ -52,11 +57,12 @@ class CheckoutActivity : AppCompatActivity() {
             val cvv = txtCvv.text.toString()
 
             if (validateName(firstname) && validateName(lastName) && validateEmail(email) && validatePhoneNumber(phoneNumber) && validateStreetAddress(address) && validateCanadianPostalCode(postalCode) && validateCanadianAddress(city) && validateCanadianAddress(province) && validateCountry(country) && validateName(nameOnCard) && validateCardNumber(cardNumber) && validateCVV(cvv)) {
-                val userId = FirebaseAuth.getInstance().currentUser?.uid
+                val firebaseUser = FirebaseAuth.getInstance().currentUser?.uid
 
-                if (userId != null) {
-                    val userRef =
-                        FirebaseDatabase.getInstance().reference.child("orders").child(userId)
+
+                if (firebaseUser != null) {
+                    val databaseReference: DatabaseReference =
+                        FirebaseDatabase.getInstance().reference.child("orders").child(firebaseUser)
                     val userData = HashMap<String, Any>()
                     userData["firstName"] = firstname
                     userData["lastName"] = lastName
@@ -72,14 +78,31 @@ class CheckoutActivity : AppCompatActivity() {
                     userData["validity"] = validity
                     userData["cvv"] = cvv
 
-                    userRef.setValue(userData)
+                    databaseReference.setValue(userData)
                         .addOnSuccessListener {
                             Toast.makeText(
                                 this,
                                 "Your Order is successfully placed",
                                 Toast.LENGTH_SHORT
                             ).show()
-                            // You can navigate to a success screen or perform other actions here
+
+                            val cartReference: DatabaseReference = FirebaseDatabase.getInstance().reference.child("cart").child(firebaseUser)
+                            cartReference.addListenerForSingleValueEvent(object :
+                                ValueEventListener {
+                                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                                    for (cartSnapshot in dataSnapshot.children) {
+                                        val cartItem = cartSnapshot.getValue(Cart::class.java)
+                                        cartItem?.let {
+                                            databaseReference.push().setValue(it)
+                                        }
+                                    }
+                                    dataSnapshot.ref.removeValue()
+                                }
+                                override fun onCancelled(databaseError: DatabaseError) {
+                                    Log.e("CheckoutActivity", "onCancelled", databaseError.toException())
+                                }
+
+                            })
                         }
                         .addOnFailureListener { exception ->
                             Toast.makeText(
@@ -125,7 +148,7 @@ class CheckoutActivity : AppCompatActivity() {
         if (matcher.matches()) {
             return matcher.matches()
         } else {
-            Toast.makeText(this, "Please enter a valid Canadian phone number in the format +1 999 999 9999", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Please enter a valid Canadian phone number in the format +19999999999", Toast.LENGTH_SHORT).show()
             return false
         }
     }
