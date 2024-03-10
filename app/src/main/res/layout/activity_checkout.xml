@@ -84,7 +84,7 @@
                     android:id="@+id/txtPhoneNumber"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Enter Contact Number {eg: +1 xxx xxx xxxx}" />
+                    android:hint="Enter Contact Number {eg: +1xxxxxxxxxx }" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -129,10 +129,10 @@
                 android:layout_margin="15dp">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/txtState"
+                    android:id="@+id/txtProvince"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Enter State" />
+                    android:hint="Enter Province" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -177,6 +177,7 @@
                     android:hint="Enter Card Number" />
             </com.google.android.material.textfield.TextInputLayout>
 
+
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -186,6 +187,8 @@
                     android:id="@+id/txtValidity"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:inputType="date"
                     android:hint="Enter Card Validity" />
             </com.google.android.material.textfield.TextInputLayout>
 
