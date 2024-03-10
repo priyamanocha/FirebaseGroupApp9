@@ -51,7 +51,7 @@ class ProductAdapter(options: FirebaseRecyclerOptions<Product>) :
         holder.cardView.setOnClickListener { view ->
             val intent = Intent(
                 view.context,
-                ProductDetailActivity::class.java
+                DetailActivity::class.java
             )
             intent.putExtra("productDetails", model)
             view.context.startActivity(intent)

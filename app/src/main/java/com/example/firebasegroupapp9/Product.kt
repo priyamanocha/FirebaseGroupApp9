@@ -8,6 +8,7 @@ data class Product(
     var manufacturer: String = "",
     var url: String = "",
     var description: String = "",
+    var size: String = "",
     var fullDescription: String = "",
     var price: Double = 0.0
 ) : Serializable {

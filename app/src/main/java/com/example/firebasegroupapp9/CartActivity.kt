@@ -5,14 +5,19 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class CartActivity : AppCompatActivity() {
     private var adapter: CartAdapter? = null
@@ -40,6 +45,9 @@ class CartActivity : AppCompatActivity() {
 //                TODO("Not yet implemented")
 //            }
 //        }
+
+        val txtEmptyCart: TextView = findViewById(R.id.txtEmptyCart)
+        val btnCheckout: Button = findViewById(R.id.btnCheckout)
         val options =
             FirebaseRecyclerOptions.Builder<Cart>().setQuery(query, Cart::class.java)
                 .build()
@@ -48,14 +56,28 @@ class CartActivity : AppCompatActivity() {
         rView.layoutManager = LinearLayoutManager(this)
         rView.adapter = adapter
 
+        query.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    txtEmptyCart.visibility = View.GONE;
+                    btnCheckout.visibility = View.VISIBLE;
+                } else {
+                    txtEmptyCart.visibility = View.VISIBLE;
+                    btnCheckout.visibility = View.GONE;
+                }
+            }
 
-        val gotoCheckout: Button = findViewById(R.id.gotoCheckout)
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Handle error
+            }
+        })
 
+
+        val gotoCheckout: Button = findViewById(R.id.btnCheckout)
         gotoCheckout.setOnClickListener {
             startActivity(Intent(this@CartActivity, CheckoutActivity::class.java))
         }
     }
-
 
     override fun onStart() {
         super.onStart()

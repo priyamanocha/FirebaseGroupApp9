@@ -84,7 +84,7 @@
                     android:id="@+id/txtPhoneNumber"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Enter Contact Number {eg: +1xxxxxxxxxx }" />
+                    android:hint="Enter Contact Number (eg: +1xxxxxxxxxx )" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -151,7 +151,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="Enter Shipping Details" />
+                android:text="Enter Card Details" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"

@@ -19,7 +19,7 @@
             android:name=".ForgotPasswordActivity"
             android:exported="false" />
         <activity
-            android:name=".ProductDetailActivity"
+            android:name=".DetailActivity"
             android:exported="false" />
         <activity
             android:name=".CartActivity"

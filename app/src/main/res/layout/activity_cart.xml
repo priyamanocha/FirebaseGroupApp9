@@ -11,37 +11,45 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <LinearLayout
-        android:id="@+id/linearLayout"
+
+    <TextView
+        android:id="@+id/txtCart"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="80dp"
-        android:orientation="horizontal">
+        android:text="Shopping Cart"
+        android:textAlignment="center"
+        android:textColor="@color/teal"
+        android:textSize="22sp"
+        android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/txtCart"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Shopping Cart"
-            android:textAlignment="center"
-            android:textColor="@color/teal"
-            android:textSize="22sp"
-            android:textStyle="bold" />
-    </LinearLayout>
+    <TextView
+        android:id="@+id/txtEmptyCart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txtCart"
+        android:layout_marginTop="250dp"
+        android:text="Cart is Empty!!"
+        android:textAlignment="center"
+        android:textColor="@color/teal"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="120dp" />
+        android:layout_marginTop="140dp"
+        android:padding="20dp" />
 
     <Button
-        android:id="@+id/gotoCheckout"
+        android:id="@+id/btnCheckout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/teal"
         android:layout_below="@+id/recView"
-        android:layout_marginTop="60dp"
         android:layout_marginLeft="150dp"
+        android:layout_marginTop="60dp"
+        android:backgroundTint="@color/teal"
         android:text="Checkout" />
 </RelativeLayout>
