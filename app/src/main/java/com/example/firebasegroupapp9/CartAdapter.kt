@@ -21,8 +21,14 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 
 
-class CartAdapter(options: FirebaseRecyclerOptions<Cart>) :
+class CartAdapter(options: FirebaseRecyclerOptions<Cart>, private var ttlamount: TextView) :
     FirebaseRecyclerAdapter<Cart, CartAdapter.MyViewHolder>(options) {
+
+//    private var totalItemTextView: TextView
+    private var totalAmount: Double = 0.0
+//    private var totalItem: Int = 0
+
+
     class MyViewHolder(inflater: LayoutInflater, parent: ViewGroup) :
         RecyclerView.ViewHolder(inflater.inflate(R.layout.cart_row_layout, parent, false)) {
         val imgProduct: ImageView = itemView.findViewById(R.id.imgProduct)
@@ -37,9 +43,10 @@ class CartAdapter(options: FirebaseRecyclerOptions<Cart>) :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val inflater = LayoutInflater.from(parent.context)
+        updateTotalAmount()
         return MyViewHolder(inflater, parent)
     }
-
+    
     override fun onBindViewHolder(
         holder: MyViewHolder,
         position: Int,
@@ -135,5 +142,22 @@ class CartAdapter(options: FirebaseRecyclerOptions<Cart>) :
             }
 
         }
+    }
+
+    private fun updateTotalAmount() {
+        totalAmount = calculateTotalAmount()
+        val formattedTotal = String.format("$%.2f", totalAmount)
+        ttlamount.text = formattedTotal
+    }
+
+    private fun calculateTotalAmount(): Double {
+        var amount = 0.0
+        for (i in 0 until itemCount) {
+            val currentItem = getItem(i)
+            if (currentItem != null) {
+                amount += currentItem.price * currentItem.quantity
+            }
+        }
+        return amount
     }
 }

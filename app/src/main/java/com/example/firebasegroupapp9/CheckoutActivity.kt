@@ -3,6 +3,7 @@ package com.example.firebasegroupapp9
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
@@ -12,7 +13,9 @@ import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
+import java.util.Calendar
 import java.util.regex.Pattern
+import kotlin.random.Random
 
 class CheckoutActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,7 +25,18 @@ class CheckoutActivity : AppCompatActivity() {
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
+
+        val intent = intent
+
+        // Get the total amount from the intent
+        val totalAmount = intent.getStringExtra("TOTAL_AMOUNT")
+
+        // Now you can use the totalAmount as needed
+        // For example, set it to a TextView
+
         val txtTotal: TextView = findViewById(R.id.txtTotal)
+        txtTotal.text = "Total Amount: $totalAmount"
+
 
         val txtFirstname: EditText = findViewById(R.id.txtFirstname)
         val txtLastName: EditText = findViewById(R.id.txtLastName)
@@ -61,7 +75,7 @@ class CheckoutActivity : AppCompatActivity() {
                     city
                 ) && validateCanadianAddress(province) && validateCountry(country) && validateName(
                     nameOnCard
-                ) && validateCardNumber(cardNumber) && validateCVV(cvv)
+                ) && validateCardNumber(cardNumber) && validateExpiryDate(validity) && validateCVV(cvv)
             ) {
                 val userId = FirebaseAuth.getInstance().currentUser?.uid
 
@@ -83,7 +97,9 @@ class CheckoutActivity : AppCompatActivity() {
                     userData["validity"] = validity
                     userData["cvv"] = cvv
 
-                    userRef.setValue(userData)
+                    val orderNum = generateorderNumber()
+
+                    userRef.child(orderNum.toString()).setValue(userData)
                         .addOnSuccessListener {
                             Toast.makeText(
                                 this,
@@ -105,7 +121,9 @@ class CheckoutActivity : AppCompatActivity() {
             }
         }
     }
-
+    fun generateorderNumber(): Int {
+        return Random.nextInt(10000000, 99999999 + 1)
+    }
     private fun validateName(name: String): Boolean {
         val trimmedName = name.trim()
         if (trimmedName.isEmpty()) {
@@ -131,7 +149,27 @@ class CheckoutActivity : AppCompatActivity() {
             return false
         }
     }
+    private fun validateExpiryDate(expiryDate: String): Boolean {
+        if (expiryDate.length == 4) {
+            val enteredMonth = expiryDate.substring(0, 2).toIntOrNull()
+            val enteredYear = expiryDate.substring(2, 4).toIntOrNull()
 
+            if (enteredMonth != null && enteredYear != null) {
+                val currentMonth = Calendar.getInstance().get(Calendar.MONTH) + 1
+                val currentYear = Calendar.getInstance().get(Calendar.YEAR) % 100
+
+                if (enteredYear > currentYear || (enteredYear == currentYear && enteredMonth >= currentMonth)) {
+                    return true
+                } else {
+                    Toast.makeText(this, "Enter valid expiry date", Toast.LENGTH_SHORT).show()
+                    return false
+                }
+            }
+        }
+        // If entered date format is incorrect
+        Toast.makeText(this, "Invalid expiry date format", Toast.LENGTH_SHORT).show()
+        return false
+    }
     private fun validatePhoneNumber(phoneNumber: String): Boolean {
         val phonePattern = "^\\+1\\d{10}\$"
         val pattern = Pattern.compile(phonePattern)

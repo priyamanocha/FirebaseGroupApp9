@@ -20,6 +20,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
 class CartActivity : AppCompatActivity() {
+    private lateinit var ttlamount: TextView
     private var adapter: CartAdapter? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,15 +33,21 @@ class CartActivity : AppCompatActivity() {
             FirebaseAuth.getInstance().currentUser?.uid.toString()
         )
 
+
+
+
         val txtEmptyCart: TextView = findViewById(R.id.txtEmptyCart)
         val btnCheckout: Button = findViewById(R.id.btnCheckout)
         val options =
             FirebaseRecyclerOptions.Builder<Cart>().setQuery(query, Cart::class.java)
                 .build()
-        adapter = CartAdapter(options)
+        val ttlamount: TextView = findViewById(R.id.ttlamount)
+
+        adapter = CartAdapter(options, ttlamount)
         val rView: RecyclerView = findViewById(R.id.recView)
         rView.layoutManager = LinearLayoutManager(this)
         rView.adapter = adapter
+
 
         query.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -59,9 +66,13 @@ class CartActivity : AppCompatActivity() {
         })
 
 
+
         val gotoCheckout: Button = findViewById(R.id.btnCheckout)
         gotoCheckout.setOnClickListener {
-            startActivity(Intent(this@CartActivity, CheckoutActivity::class.java))
+            val intent = Intent(this@CartActivity, CheckoutActivity::class.java)
+            val totalAmount = ttlamount.text.toString()
+            intent.putExtra("TOTAL_AMOUNT", totalAmount)
+            startActivity(intent)
         }
     }
 
