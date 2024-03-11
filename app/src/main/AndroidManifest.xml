@@ -16,7 +16,10 @@
             android:name=".CheckoutActivity"
             android:exported="false" />
         <activity
-            android:name=".ProductDetailActivity"
+            android:name=".ForgotPasswordActivity"
+            android:exported="false" />
+        <activity
+            android:name=".DetailActivity"
             android:exported="false" />
         <activity
             android:name=".CartActivity"

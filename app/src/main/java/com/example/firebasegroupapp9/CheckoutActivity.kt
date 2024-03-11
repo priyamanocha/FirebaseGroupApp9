@@ -1,29 +1,47 @@
 package com.example.firebasegroupapp9
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import android.widget.Toolbar
+import androidx.appcompat.widget.Toolbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+
+import java.util.Calendar
 import java.util.regex.Pattern
+import kotlin.random.Random
 
 class CheckoutActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_checkout)
-        val toolbar: androidx.appcompat.widget.Toolbar = findViewById(R.id.toolbar)
+
+        val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
+
+        val intent = intent
+
+        // Get the total amount from the intent
+        val totalAmount = intent.getStringExtra("TOTAL_AMOUNT")
+
+        // Now you can use the totalAmount as needed
+        // For example, set it to a TextView
+
         val txtTotal: TextView = findViewById(R.id.txtTotal)
+        txtTotal.text = "Total Amount: $totalAmount"
+
 
         val txtFirstname: EditText = findViewById(R.id.txtFirstname)
         val txtLastName: EditText = findViewById(R.id.txtLastName)
@@ -56,8 +74,17 @@ class CheckoutActivity : AppCompatActivity() {
             val validity = txtValidity.text.toString()
             val cvv = txtCvv.text.toString()
 
-            if (validateName(firstname) && validateName(lastName) && validateEmail(email) && validatePhoneNumber(phoneNumber) && validateStreetAddress(address) && validateCanadianPostalCode(postalCode) && validateCanadianAddress(city) && validateCanadianAddress(province) && validateCountry(country) && validateName(nameOnCard) && validateCardNumber(cardNumber) && validateCVV(cvv)) {
-                val firebaseUser = FirebaseAuth.getInstance().currentUser?.uid
+
+            if (validateName(firstname) && validateName(lastName) && validateEmail(email) && validatePhoneNumber(
+                    phoneNumber
+                ) && validateStreetAddress(address) && validateCanadianPostalCode(postalCode) && validateCanadianAddress(
+                    city
+                ) && validateCanadianAddress(province) && validateCountry(country) && validateName(
+                    nameOnCard
+                ) && validateCardNumber(cardNumber) && validateExpiryDate(validity) && validateCVV(cvv)
+            ) {
+                val userId = FirebaseAuth.getInstance().currentUser?.uid
+
 
 
                 if (firebaseUser != null) {
@@ -78,7 +105,11 @@ class CheckoutActivity : AppCompatActivity() {
                     userData["validity"] = validity
                     userData["cvv"] = cvv
 
-                    databaseReference.setValue(userData)
+
+                    val orderNum = generateorderNumber()
+
+                    userRef.child(orderNum.toString()).setValue(userData)
+
                         .addOnSuccessListener {
                             Toast.makeText(
                                 this,
@@ -117,6 +148,9 @@ class CheckoutActivity : AppCompatActivity() {
             }
         }
     }
+    fun generateorderNumber(): Int {
+        return Random.nextInt(10000000, 99999999 + 1)
+    }
     private fun validateName(name: String): Boolean {
         val trimmedName = name.trim()
         if (trimmedName.isEmpty()) {
@@ -124,22 +158,44 @@ class CheckoutActivity : AppCompatActivity() {
             return false
         }
         if (!trimmedName.matches(Regex("^[a-zA-Z]+(?: [a-zA-Z]+)*\$"))) {
-            Toast.makeText(this, "$name is INVALID!! Please enter a valid name", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "$name is INVALID!! Please enter a valid name", Toast.LENGTH_SHORT)
+                .show()
             return false
         }
         return true
     }
+
     private fun validateEmail(email: String): Boolean {
         val emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+"
         val pattern = Pattern.compile(emailPattern)
         val matcher = pattern.matcher(email)
-        if(matcher.matches()){
+        if (matcher.matches()) {
             return matcher.matches()
-        }
-        else{
+        } else {
             Toast.makeText(this, "Please enter a valid email", Toast.LENGTH_SHORT).show()
             return false
         }
+    }
+    private fun validateExpiryDate(expiryDate: String): Boolean {
+        if (expiryDate.length == 4) {
+            val enteredMonth = expiryDate.substring(0, 2).toIntOrNull()
+            val enteredYear = expiryDate.substring(2, 4).toIntOrNull()
+
+            if (enteredMonth != null && enteredYear != null) {
+                val currentMonth = Calendar.getInstance().get(Calendar.MONTH) + 1
+                val currentYear = Calendar.getInstance().get(Calendar.YEAR) % 100
+
+                if (enteredYear > currentYear || (enteredYear == currentYear && enteredMonth >= currentMonth)) {
+                    return true
+                } else {
+                    Toast.makeText(this, "Enter valid expiry date", Toast.LENGTH_SHORT).show()
+                    return false
+                }
+            }
+        }
+        // If entered date format is incorrect
+        Toast.makeText(this, "Invalid expiry date format", Toast.LENGTH_SHORT).show()
+        return false
     }
     private fun validatePhoneNumber(phoneNumber: String): Boolean {
         val phonePattern = "^\\+1\\d{10}\$"
@@ -149,9 +205,11 @@ class CheckoutActivity : AppCompatActivity() {
             return matcher.matches()
         } else {
             Toast.makeText(this, "Please enter a valid Canadian phone number in the format +19999999999", Toast.LENGTH_SHORT).show()
+
             return false
         }
     }
+
     private fun validateStreetAddress(streetAddress: String): Boolean {
         val trimmedStreetAddress = streetAddress.trim()
         if (trimmedStreetAddress.isEmpty()) {
@@ -159,19 +217,29 @@ class CheckoutActivity : AppCompatActivity() {
             return false
         }
         if (!trimmedStreetAddress.matches(Regex("^[a-zA-Z0-9]+(?: [a-zA-Z0-9]+)*\$"))) {
-            Toast.makeText(this, "$streetAddress is INVALID!! Please enter a valid address", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                this,
+                "$streetAddress is INVALID!! Please enter a valid address",
+                Toast.LENGTH_SHORT
+            ).show()
             return false
         }
         return true
     }
+
     private fun validateCanadianAddress(address: String): Boolean {
         val trimmedAddress = address.trim()
         if (trimmedAddress.isEmpty()) {
-            Toast.makeText(this, "Please enter a valid City and Province", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Please enter a valid City and Province", Toast.LENGTH_SHORT)
+                .show()
             return false
         }
         if (!trimmedAddress.matches(Regex("^[a-zA-Z]+(?: [a-zA-Z]+)*\$"))) {
-            Toast.makeText(this, "$address is INVALID!! Please enter a valid City and Province", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                this,
+                "$address is INVALID!! Please enter a valid City and Province",
+                Toast.LENGTH_SHORT
+            ).show()
             return false
         }
         return true
@@ -181,25 +249,32 @@ class CheckoutActivity : AppCompatActivity() {
         val canadianPostalCodePattern = "^[A-Za-z]\\d[A-Za-z]\\s?\\d[A-Za-z]\\d$"
         val pattern = Pattern.compile(canadianPostalCodePattern)
         val matcher = pattern.matcher(postalCode.trim())
-        if(matcher.matches()){
+        if (matcher.matches()) {
             return matcher.matches()
         } else {
-            Toast.makeText(this, "Please enter a valid Canadian postal code", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Please enter a valid Canadian postal code", Toast.LENGTH_SHORT)
+                .show()
             return false
         }
     }
+
     private fun validateCountry(country: String): Boolean {
         val trimmedCountry = country.trim()
-        if (trimmedCountry.equals("canada", ignoreCase = true)){
+        if (trimmedCountry.equals("canada", ignoreCase = true)) {
             return true
         } else {
-            Toast.makeText(this, "Country INVALID!! Services are limited to Canada at the moment", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                this,
+                "Country INVALID!! Services are limited to Canada at the moment",
+                Toast.LENGTH_SHORT
+            ).show()
             return false
         }
     }
+
     private fun validateCardNumber(cardNumber: String): Boolean {
         val cardNumberRegex = "^(\\d{4}[- ]){3}\\d{4}|\\d{16}$"
-        if(cardNumber.trim().matches(Regex(cardNumberRegex))){
+        if (cardNumber.trim().matches(Regex(cardNumberRegex))) {
             return true
         } else {
             Toast.makeText(this, "INVALID card number", Toast.LENGTH_SHORT).show()
@@ -209,7 +284,7 @@ class CheckoutActivity : AppCompatActivity() {
 
     private fun validateCVV(cvv: String): Boolean {
         val cvvRegex = "^\\d{3,4}$"
-        if(cvv.trim().matches(Regex(cvvRegex))){
+        if (cvv.trim().matches(Regex(cvvRegex))) {
             return true
         } else {
             Toast.makeText(this, "INVALID cvv detected", Toast.LENGTH_SHORT).show()
@@ -217,5 +292,25 @@ class CheckoutActivity : AppCompatActivity() {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
+    }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.nav_logout) {
+            Toast.makeText(this, "User Logged Out", Toast.LENGTH_LONG).show()
+            FirebaseAuth.getInstance().signOut()
+            val homeIntent = Intent(this, MainActivity::class.java)
+            startActivity(homeIntent)
+            finish()
+        } else if (item.itemId == R.id.nav_home) {
+            val mainIntent = Intent(this, ProductActivity::class.java)
+            startActivity(mainIntent)
+        } else if (item.itemId == R.id.nav_cart) {
+            val cartIntent = Intent(this, CartActivity::class.java)
+            startActivity(cartIntent)
+        }
+        return true
+    }
 }

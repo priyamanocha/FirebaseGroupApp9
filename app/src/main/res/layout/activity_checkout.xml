@@ -11,6 +11,7 @@
         layout="@layout/toolbar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+
     <ScrollView
         android:id="@+id/scroll_view"
         android:layout_width="match_parent"
@@ -30,7 +31,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="Total Amount: $$$" />
+                android:textStyle="bold"
+                android:text="Total Amount: $0.00"
+                android:textSize="18sp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -84,7 +87,7 @@
                     android:id="@+id/txtPhoneNumber"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Enter Contact Number {eg: +1xxxxxxxxxx }" />
+                    android:hint="Enter Contact Number (eg: +1xxxxxxxxxx )" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -143,6 +146,7 @@
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/txtCountry"
                     android:layout_width="match_parent"
+                    android:text="@string/Canada"
                     android:layout_height="wrap_content"
                     android:hint="Enter Country" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -151,7 +155,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="Enter Shipping Details" />
+                android:text="Enter Card Details" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
@@ -174,6 +178,7 @@
                     android:id="@+id/txtCardNumber"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:inputType="number"
                     android:hint="Enter Card Number" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -188,8 +193,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ems="10"
-                    android:inputType="date"
-                    android:hint="Enter Card Validity" />
+                    android:hint="Enter Card Validity (MMYY)"
+                    android:inputType="date" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -201,6 +206,7 @@
                     android:id="@+id/txtCvv"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:inputType="number"
                     android:hint="Enter CVV" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -215,8 +221,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerInParent="true"
-        android:backgroundTint="@color/teal"
         android:layout_marginBottom="30dp"
+        android:backgroundTint="@color/teal"
         android:text="Place Order" />
 
 

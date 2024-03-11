@@ -5,16 +5,22 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class CartActivity : AppCompatActivity() {
+    private lateinit var ttlamount: TextView
     private var adapter: CartAdapter? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,35 +33,48 @@ class CartActivity : AppCompatActivity() {
             FirebaseAuth.getInstance().currentUser?.uid.toString()
         )
 
-//        query.addListenerForSingleValueEvent(object : ValueEventListener {
-//            override fun onDataChange(dataSnapshot: DataSnapshot) {
-//                val cartItems: MutableList<Cart> = mutableListOf()
-//                for (snapshot in dataSnapshot.children) {
-//                    val cartItem = snapshot.getValue(Cart::class.java)
-//                    cartItem?.let { cartItems.add(it) }
-//                }
-//
-//            }
-//            override fun onCancelled(error: DatabaseError) {
-//                TODO("Not yet implemented")
-//            }
-//        }
+
+
+
+        val txtEmptyCart: TextView = findViewById(R.id.txtEmptyCart)
+        val btnCheckout: Button = findViewById(R.id.btnCheckout)
         val options =
             FirebaseRecyclerOptions.Builder<Cart>().setQuery(query, Cart::class.java)
                 .build()
-        adapter = CartAdapter(options)
+        val ttlamount: TextView = findViewById(R.id.ttlamount)
+
+        adapter = CartAdapter(options, ttlamount)
         val rView: RecyclerView = findViewById(R.id.recView)
         rView.layoutManager = LinearLayoutManager(this)
         rView.adapter = adapter
 
 
-        val gotoCheckout: Button = findViewById(R.id.gotoCheckout)
+        query.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    txtEmptyCart.visibility = View.GONE;
+                    btnCheckout.visibility = View.VISIBLE;
+                } else {
+                    txtEmptyCart.visibility = View.VISIBLE;
+                    btnCheckout.visibility = View.GONE;
+                }
+            }
 
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Handle error
+            }
+        })
+
+
+
+        val gotoCheckout: Button = findViewById(R.id.btnCheckout)
         gotoCheckout.setOnClickListener {
-            startActivity(Intent(this@CartActivity, CheckoutActivity::class.java))
+            val intent = Intent(this@CartActivity, CheckoutActivity::class.java)
+            val totalAmount = ttlamount.text.toString()
+            intent.putExtra("TOTAL_AMOUNT", totalAmount)
+            startActivity(intent)
         }
     }
-
 
     override fun onStart() {
         super.onStart()

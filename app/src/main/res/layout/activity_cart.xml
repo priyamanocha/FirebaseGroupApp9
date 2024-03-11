@@ -11,37 +11,79 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <LinearLayout
-        android:id="@+id/linearLayout"
+
+    <TextView
+        android:id="@+id/txtCart"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="80dp"
-        android:orientation="horizontal">
+        android:text="Shopping Cart"
+        android:textAlignment="center"
+        android:textColor="@color/teal"
+        android:textSize="22sp"
+        android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/txtCart"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Shopping Cart"
-            android:textAlignment="center"
-            android:textColor="@color/teal"
-            android:textSize="22sp"
-            android:textStyle="bold" />
-    </LinearLayout>
+    <TextView
+        android:id="@+id/txtEmptyCart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txtCart"
+        android:layout_marginTop="250dp"
+        android:text="Cart is Empty!!"
+        android:textAlignment="center"
+        android:textColor="@color/teal"
+        android:textSize="22sp"
+        android:textStyle="bold" />
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="120dp" />
+        android:layout_marginTop="140dp"
+        android:padding="20dp" />
 
-    <Button
-        android:id="@+id/gotoCheckout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/teal"
-        android:layout_below="@+id/recView"
-        android:layout_marginTop="60dp"
-        android:layout_marginLeft="150dp"
-        android:text="Checkout" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:id="@+id/lin_layout4"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="22dp"
+            android:textColor="@color/black"
+            android:id="@+id/amounttext"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="1"
+
+            android:text="@string/amount"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ttlamount"
+            android:layout_weight="4"
+            android:text="@string/dollar"
+            android:textSize="22dp"
+            android:textColor="@color/black"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="5dp"
+            />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_weight="1"
+            android:id="@+id/btnCheckout"
+            android:layout_marginRight="10dp"
+            android:layout_height="wrap_content"
+            android:text="@string/checkout"
+            android:layout_gravity="center_vertical"
+            android:backgroundTint="@color/teal"
+            android:padding="10dp"
+            />
+    </LinearLayout>
+
 </RelativeLayout>
