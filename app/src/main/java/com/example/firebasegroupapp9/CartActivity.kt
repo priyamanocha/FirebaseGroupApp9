@@ -32,20 +32,6 @@ class CartActivity : AppCompatActivity() {
             FirebaseAuth.getInstance().currentUser?.uid.toString()
         )
 
-//        query.addListenerForSingleValueEvent(object : ValueEventListener {
-//            override fun onDataChange(dataSnapshot: DataSnapshot) {
-//                val cartItems: MutableList<Cart> = mutableListOf()
-//                for (snapshot in dataSnapshot.children) {
-//                    val cartItem = snapshot.getValue(Cart::class.java)
-//                    cartItem?.let { cartItems.add(it) }
-//                }
-//
-//            }
-//            override fun onCancelled(error: DatabaseError) {
-//                TODO("Not yet implemented")
-//            }
-//        }
-
         val txtEmptyCart: TextView = findViewById(R.id.txtEmptyCart)
         val btnCheckout: Button = findViewById(R.id.btnCheckout)
         val options =

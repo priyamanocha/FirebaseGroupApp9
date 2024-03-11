@@ -19,9 +19,8 @@
         android:id="@+id/btnLogin"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:text="Login"
-        android:backgroundTint="@color/teal">
-    </Button>
+        android:backgroundTint="@color/teal"
+        android:text="Login"></Button>
 
     <TextView
         android:id="@+id/txtRegister"
@@ -31,6 +30,7 @@
         android:text="Register"
         android:textSize="14sp"
         android:textStyle="bold" />
+
     <TextView
         android:id="@+id/txtForgotPassword"
         android:layout_width="wrap_content"

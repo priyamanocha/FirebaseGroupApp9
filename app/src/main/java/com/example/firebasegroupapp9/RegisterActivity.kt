@@ -30,7 +30,11 @@ class RegisterActivity : AppCompatActivity() {
             if (email.isNotEmpty() && password.isNotEmpty()) {
                 auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener {
                     if (it.isSuccessful) {
-                        Toast.makeText(this, "User Registered Successfully. Please Login!", Toast.LENGTH_LONG).show()
+                        Toast.makeText(
+                            this,
+                            "User Registered Successfully. Please Login!",
+                            Toast.LENGTH_LONG
+                        ).show()
                         startActivity(Intent(this, LoginActivity::class.java))
                         finish()
                     }

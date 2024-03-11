@@ -11,6 +11,7 @@
         layout="@layout/toolbar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+
     <ScrollView
         android:id="@+id/scroll_view"
         android:layout_width="match_parent"
@@ -188,8 +189,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:ems="10"
-                    android:inputType="date"
-                    android:hint="Enter Card Validity" />
+                    android:hint="Enter Card Validity"
+                    android:inputType="date" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -215,8 +216,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerInParent="true"
-        android:backgroundTint="@color/teal"
         android:layout_marginBottom="30dp"
+        android:backgroundTint="@color/teal"
         android:text="Place Order" />
 
 
