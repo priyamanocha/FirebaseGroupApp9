@@ -81,21 +81,27 @@ class ProductAdapter(options: FirebaseRecyclerOptions<Product>) :
                 })
         }
         holder.btnAddToCart.setOnClickListener { view ->
-            if (firebaseUser != null) {
-                val cartItem = Cart(model.id, model.name, model.price, 1, model.url)
-                databaseReference.child(firebaseUser.uid).child(model.id).setValue(cartItem)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            holder.btnAddToCart.text = "Added"
-                            Toast.makeText(view.context, "Product Added To Cart", Toast.LENGTH_LONG)
+            if (holder.btnAddToCart.text.equals("Add to Cart")) {
+                if (firebaseUser != null) {
+                    val cartItem = Cart(model.id, model.name, model.price, 1, model.url)
+                    databaseReference.child(firebaseUser.uid).child(model.id).setValue(cartItem)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                holder.btnAddToCart.text = "Added"
+                                Toast.makeText(
+                                    view.context,
+                                    "Product Added To Cart",
+                                    Toast.LENGTH_LONG
+                                )
+                                    .show()
+                            }
+                        }.addOnFailureListener {
+                            Log.e("Product Adapter", it.localizedMessage.toString())
+                            Toast.makeText(view.context, it.localizedMessage, Toast.LENGTH_LONG)
                                 .show()
                         }
-                    }.addOnFailureListener {
-                        Log.e("Product Adapter", it.localizedMessage.toString())
-                        Toast.makeText(view.context, it.localizedMessage, Toast.LENGTH_LONG).show()
-                    }
 
-
+                }
             }
         }
     }

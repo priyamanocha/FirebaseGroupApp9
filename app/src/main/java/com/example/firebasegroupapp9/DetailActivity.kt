@@ -3,6 +3,7 @@ package com.example.firebasegroupapp9
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
@@ -11,6 +12,11 @@ import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 
@@ -42,9 +48,44 @@ class DetailActivity : AppCompatActivity() {
         val txtFullDescription: TextView = findViewById(R.id.txtFullDescription)
         txtFullDescription.text = product.fullDescription
 
-        val btnBack: Button = findViewById(R.id.btnBack)
-        btnBack.setOnClickListener {
-            startActivity(Intent(this@DetailActivity, ProductActivity::class.java))
+        val btnAddToCart: Button = findViewById(R.id.btnAddToCart)
+        val databaseReference: DatabaseReference =
+            FirebaseDatabase.getInstance().getReference("cart")
+        val firebaseUser = FirebaseAuth.getInstance().currentUser
+
+        if (firebaseUser != null) {
+            databaseReference.child(firebaseUser.uid).child(product.id)
+                .addListenerForSingleValueEvent(object :
+                    ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            btnAddToCart.text = "Added"
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.e("Detail Activity", error.message)
+                    }
+                })
+        }
+        btnAddToCart.setOnClickListener {
+            if (firebaseUser != null) {
+                if (btnAddToCart.text.equals("Add to Cart")) {
+                    val cartItem = Cart(product.id, product.name, product.price, 1, product.url)
+                    databaseReference.child(firebaseUser.uid).child(product.id).setValue(cartItem)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                btnAddToCart.text = "Added"
+                                Toast.makeText(this, "Product Added To Cart", Toast.LENGTH_LONG)
+                                    .show()
+                            }
+                        }.addOnFailureListener {
+                            Log.e("Detail Activity", it.localizedMessage.toString())
+                            Toast.makeText(this, it.localizedMessage, Toast.LENGTH_LONG).show()
+                        }
+
+                }
+            }
         }
         val storageRef: StorageReference =
             FirebaseStorage.getInstance().getReferenceFromUrl(product.url)
@@ -65,10 +106,12 @@ class DetailActivity : AppCompatActivity() {
                 startActivity(homeIntent)
                 finish()
             }
+
             R.id.nav_product -> {
                 val mainIntent = Intent(this, ProductActivity::class.java)
                 startActivity(mainIntent)
             }
+
             R.id.nav_cart -> {
                 val cartIntent = Intent(this, CartActivity::class.java)
                 startActivity(cartIntent)

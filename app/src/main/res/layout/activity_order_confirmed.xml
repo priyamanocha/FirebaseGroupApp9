@@ -4,14 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Orderconfirmed">
+    tools:context=".OrderConfirmedActivity">
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         >
 
         <ImageView
-            android:id="@+id/orderconfirm"
+            android:id="@+id/imgOrderConfirmed"
             android:layout_width="250dp"
             android:layout_height="250dp"
             android:layout_centerInParent="true"
@@ -24,18 +24,18 @@
             app:layout_constraintVertical_bias="0.168" />
 
         <TextView
-            android:id="@+id/ordertext"
+            android:id="@+id/txtOrderConfirmed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/orderconfirm"
-            android:text="@string/orderconfirm"
+            android:layout_below="@id/imgOrderConfirmed"
+            android:text="@string/orderConfirmed"
             android:textColor="@color/teal"
-            android:textSize="30dp"
+            android:textSize="30sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/orderconfirm"
+            app:layout_constraintTop_toBottomOf="@+id/imgOrderConfirmed"
             app:layout_constraintVertical_bias="0.169" />
 
         <TextView
@@ -46,11 +46,11 @@
             android:textColor="@color/black"
             android:textSize="20dp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@+id/orderbtn"
+            app:layout_constraintBottom_toTopOf="@+id/btnProducts"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.498"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/ordertext"
+            app:layout_constraintTop_toBottomOf="@+id/txtOrderConfirmed"
             app:layout_constraintVertical_bias="0.748" />
 
         <Button
@@ -62,13 +62,13 @@
             android:paddingVertical="10dp"
             android:text="@string/home"
             android:textColor="@color/white"
-            android:textSize="20dp"
-            android:id="@+id/orderbtn"
+            android:textSize="20sp"
+            android:id="@+id/btnProducts"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.497"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/ordertext"
+            app:layout_constraintTop_toBottomOf="@+id/txtOrderConfirmed"
             app:layout_constraintVertical_bias="0.82" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -6,20 +6,19 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 
-class Orderconfirmed : AppCompatActivity() {
+class OrderConfirmedActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_orderconfirmed)
+        setContentView(R.layout.activity_order_confirmed)
 
         val intent = intent
-        val o_id = intent.getStringExtra("ORDER_ID")
         val orderID: TextView = findViewById(R.id.orderID)
-        orderID.text = "$o_id"
+        orderID.text = "Order Id:" + intent.getStringExtra("ORDER_ID")
 
-        val orderbtn: Button = findViewById(R.id.orderbtn)
+        val btnGoToProducts: Button = findViewById(R.id.btnProducts)
 
-        orderbtn.setOnClickListener{
-            val intent = Intent(this@Orderconfirmed, ProductActivity::class.java)
+        btnGoToProducts.setOnClickListener{
+            val intent = Intent(this@OrderConfirmedActivity, ProductActivity::class.java)
             startActivity(intent)
         }
 
