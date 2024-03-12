@@ -18,6 +18,8 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import java.time.LocalDate
+import java.time.LocalTime
 
 import java.util.Calendar
 import java.util.regex.Pattern
@@ -33,13 +35,7 @@ class CheckoutActivity : AppCompatActivity() {
 
 
         val intent = intent
-
-        // Get the total amount from the intent
         val totalAmount = intent.getStringExtra("TOTAL_AMOUNT")
-
-        // Now you can use the totalAmount as needed
-        // For example, set it to a TextView
-
         val txtTotal: TextView = findViewById(R.id.txtTotal)
         txtTotal.text = "Total Amount: $totalAmount"
 
@@ -58,6 +54,7 @@ class CheckoutActivity : AppCompatActivity() {
         val txtValidity: EditText = findViewById(R.id.txtValidity)
         val txtCvv: EditText = findViewById(R.id.txtCvv)
         val btnCheckout: Button = findViewById(R.id.btnCheckout)
+
 
         btnCheckout.setOnClickListener {
 
@@ -93,25 +90,32 @@ class CheckoutActivity : AppCompatActivity() {
                 if (firebaseUser != null) {
                     val databaseReference: DatabaseReference =
                         FirebaseDatabase.getInstance().reference.child("orders").child(firebaseUser)
-                    val userData = HashMap<String, Any>()
-                    userData["firstName"] = firstname
-                    userData["lastName"] = lastName
-                    userData["email"] = email
-                    userData["phoneNumber"] = phoneNumber
-                    userData["address"] = address
-                    userData["postalCode"] = postalCode
-                    userData["city"] = city
-                    userData["province"] = province
-                    userData["country"] = country
-                    userData["nameOnCard"] = nameOnCard
-                    userData["cardNumber"] = cardNumber
-                    userData["validity"] = validity
-                    userData["cvv"] = cvv
+                    val orderId = generateorderNumber()
+
+                    val orderInfo = HashMap<String, Any>()
+                    orderInfo["id"] = orderId
+                    orderInfo["firstName"] = firstname
+                    orderInfo["lastName"] = lastName
+                    orderInfo["email"] = email
+                    orderInfo["phoneNumber"] = phoneNumber
+                    orderInfo["address"] = address
+                    orderInfo["postalCode"] = postalCode
+                    orderInfo["city"] = city
+                    orderInfo["province"] = province
+                    orderInfo["country"] = country
+                    orderInfo["nameOnCard"] = nameOnCard
+                    orderInfo["cardNumber"] = cardNumber
+                    orderInfo["validity"] = validity
+                    orderInfo["cvv"] = cvv
+                    orderInfo["orderDate"] = LocalDate.now().toString()
+                    orderInfo["orderTime"] = LocalTime.now().toString()
+                    val totalAmount = txtTotal.text.toString()
+                    val amtparts = totalAmount.split(" ")
+                    val amtString = amtparts.last()
+                    orderInfo["totalAmount"] = amtString
 
 
-                    val orderNum = generateorderNumber()
-
-                    databaseReference.child(orderNum.toString()).setValue(userData)
+                    databaseReference.child(orderId.toString()).child("orderinfo").setValue(orderInfo)
 
                         .addOnSuccessListener {
                             Toast.makeText(
@@ -129,8 +133,9 @@ class CheckoutActivity : AppCompatActivity() {
                                     for (cartSnapshot in dataSnapshot.children) {
                                         val cartItem = cartSnapshot.getValue(Cart::class.java)
                                         cartItem?.let {
-                                            databaseReference.push().setValue(it)
-                                        }
+                                            databaseReference.child(orderId.toString())
+                                                .child("products").push()
+                                                .setValue(it)                                        }
                                     }
                                     dataSnapshot.ref.removeValue()
                                 }
@@ -152,6 +157,9 @@ class CheckoutActivity : AppCompatActivity() {
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
+                    val intent = Intent(this@CheckoutActivity, Orderconfirmed::class.java)
+                    intent.putExtra("ORDER_ID", orderId.toString())
+                    startActivity(intent)
                 } else {
                     Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show()
                 }
@@ -159,7 +167,7 @@ class CheckoutActivity : AppCompatActivity() {
         }
     }
 
-    fun generateorderNumber(): Int {
+    private fun generateorderNumber(): Int {
         return Random.nextInt(10000000, 99999999 + 1)
     }
 
