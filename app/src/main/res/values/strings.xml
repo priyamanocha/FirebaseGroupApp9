@@ -7,6 +7,10 @@
     <string name="dollar">$</string>
     <string name="checkout">Checkout</string>
     <string name="Canada">Canada</string>
+    <string name="order">ORDER ID</string>
+    <string name="orderconfirm">Order Confirmed..!</string>
+    <string name="home">Go to Products</string>
+
 
 
 </resources>

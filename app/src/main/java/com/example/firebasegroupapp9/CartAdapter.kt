@@ -58,6 +58,7 @@ class CartAdapter(options: FirebaseRecyclerOptions<Cart>, private var ttlamount:
         val storageRef: StorageReference =
             FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl)
         Glide.with(holder.imgProduct.context).load(storageRef).into(holder.imgProduct)
+        updateTotalAmount()
 
         holder.btnAdd.setOnClickListener { view ->
             val quantity = model.quantity + 1
@@ -76,7 +77,7 @@ class CartAdapter(options: FirebaseRecyclerOptions<Cart>, private var ttlamount:
                     Log.e("Error", it.localizedMessage);
                     Toast.makeText(view.context, it.localizedMessage, Toast.LENGTH_LONG).show()
                 }
-
+            updateTotalAmount()
         }
 
         holder.btnRemove.setOnClickListener { view ->
@@ -105,7 +106,7 @@ class CartAdapter(options: FirebaseRecyclerOptions<Cart>, private var ttlamount:
                         Toast.makeText(view.context, it.localizedMessage, Toast.LENGTH_LONG).show()
                     }
             }
-
+            updateTotalAmount()
         }
     }
 

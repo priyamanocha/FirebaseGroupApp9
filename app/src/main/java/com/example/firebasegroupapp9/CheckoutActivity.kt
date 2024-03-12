@@ -18,8 +18,6 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import java.time.LocalDate
-import java.time.LocalTime
 
 import java.util.Calendar
 import java.util.regex.Pattern
@@ -35,12 +33,10 @@ class CheckoutActivity : AppCompatActivity() {
 
 
         val intent = intent
-
-        // Get the total amount from the intent
         val totalAmount = intent.getStringExtra("TOTAL_AMOUNT")
-
         val txtTotal: TextView = findViewById(R.id.txtTotal)
         txtTotal.text = "Total Amount: $totalAmount"
+
 
         val txtFirstname: EditText = findViewById(R.id.txtFirstname)
         val txtLastName: EditText = findViewById(R.id.txtLastName)
@@ -80,76 +76,59 @@ class CheckoutActivity : AppCompatActivity() {
                     city
                 ) && validateCanadianAddress(province) && validateCountry(country) && validateName(
                     nameOnCard
-                ) && validateCardNumber(cardNumber) && validateExpiryDate(validity) && validateCVV(
-                    cvv
-                )
+                ) && validateCardNumber(cardNumber) && validateExpiryDate(validity) && validateCVV(cvv)
             ) {
                 val firebaseUser = FirebaseAuth.getInstance().currentUser?.uid
+
+
+
                 if (firebaseUser != null) {
                     val databaseReference: DatabaseReference =
                         FirebaseDatabase.getInstance().reference.child("orders").child(firebaseUser)
-                    val orderId = generateOrderNumber()
+                    val userData = HashMap<String, Any>()
+                    userData["firstName"] = firstname
+                    userData["lastName"] = lastName
+                    userData["email"] = email
+                    userData["phoneNumber"] = phoneNumber
+                    userData["address"] = address
+                    userData["postalCode"] = postalCode
+                    userData["city"] = city
+                    userData["province"] = province
+                    userData["country"] = country
+                    userData["nameOnCard"] = nameOnCard
+                    userData["cardNumber"] = cardNumber
+                    userData["validity"] = validity
+                    userData["cvv"] = cvv
 
-                    val orderInfo = HashMap<String, Any>()
-                    orderInfo["id"] = orderId
-                    orderInfo["firstName"] = firstname
-                    orderInfo["lastName"] = lastName
-                    orderInfo["email"] = email
-                    orderInfo["phoneNumber"] = phoneNumber
-                    orderInfo["address"] = address
-                    orderInfo["postalCode"] = postalCode
-                    orderInfo["city"] = city
-                    orderInfo["province"] = province
-                    orderInfo["country"] = country
-                    orderInfo["nameOnCard"] = nameOnCard
-                    orderInfo["cardNumber"] = cardNumber
-                    orderInfo["validity"] = validity
-                    orderInfo["cvv"] = cvv
-                    orderInfo["orderDate"] = LocalDate.now().toString()
-                    orderInfo["orderTime"] = LocalTime.now().toString()
-                    val totalAmount = txtTotal.text.toString()
-                    orderInfo["totalAmount"] = totalAmount
 
-                    databaseReference.child(orderId.toString()).child("orderInfo")
-                        .setValue(orderInfo).addOnSuccessListener {
+                    val orderNum = generateorderNumber()
 
-                            val cartReference =
-                                FirebaseDatabase.getInstance().reference.child("cart")
-                                    .child(firebaseUser)
+                    databaseReference.child(orderNum.toString()).child("orderinfo").setValue(userData)
+
+                        .addOnSuccessListener {
+                            Toast.makeText(
+                                this,
+                                "Your Order is successfully placed",
+                                Toast.LENGTH_SHORT
+                            ).show()
+
+                            val cartReference: DatabaseReference = FirebaseDatabase.getInstance().reference.child("cart").child(firebaseUser)
                             cartReference.addListenerForSingleValueEvent(object :
                                 ValueEventListener {
                                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                                     for (cartSnapshot in dataSnapshot.children) {
                                         val cartItem = cartSnapshot.getValue(Cart::class.java)
                                         cartItem?.let {
-                                            databaseReference.child(orderId.toString())
-                                                .child("products").push()
-                                                .setValue(it)
+                                            databaseReference.child(orderNum.toString()).child("products").push().setValue(it)
                                         }
                                     }
                                     dataSnapshot.ref.removeValue()
-
                                 }
-
                                 override fun onCancelled(databaseError: DatabaseError) {
-                                    Log.e(
-                                        "CheckoutActivity",
-                                        "onCancelled",
-                                        databaseError.toException()
-                                    )
+                                    Log.e("CheckoutActivity", "onCancelled", databaseError.toException())
                                 }
+
                             })
-                            Toast.makeText(
-                                this,
-                                "Your Order is successfully placed",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            startActivity(
-                                Intent(
-                                    this@CheckoutActivity,
-                                    ProductActivity::class.java
-                                )
-                            )
                         }
                         .addOnFailureListener { exception ->
                             Toast.makeText(
@@ -158,17 +137,20 @@ class CheckoutActivity : AppCompatActivity() {
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
+                    val intent = Intent(this@CheckoutActivity, Orderconfirmed::class.java)
+                    intent.putExtra("ORDER_ID", orderNum.toString())
+                    startActivity(intent)
                 } else {
                     Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show()
                 }
             }
+
+
         }
     }
-
-    private fun generateOrderNumber(): Int {
+    fun generateorderNumber(): Int {
         return Random.nextInt(10000000, 99999999 + 1)
     }
-
     private fun validateName(name: String): Boolean {
         val trimmedName = name.trim()
         if (trimmedName.isEmpty()) {
@@ -194,7 +176,6 @@ class CheckoutActivity : AppCompatActivity() {
             return false
         }
     }
-
     private fun validateExpiryDate(expiryDate: String): Boolean {
         if (expiryDate.length == 4) {
             val enteredMonth = expiryDate.substring(0, 2).toIntOrNull()
@@ -212,11 +193,9 @@ class CheckoutActivity : AppCompatActivity() {
                 }
             }
         }
-        // If entered date format is incorrect
         Toast.makeText(this, "Invalid expiry date format", Toast.LENGTH_SHORT).show()
         return false
     }
-
     private fun validatePhoneNumber(phoneNumber: String): Boolean {
         val phonePattern = "^\\+1\\d{10}\$"
         val pattern = Pattern.compile(phonePattern)
@@ -224,11 +203,7 @@ class CheckoutActivity : AppCompatActivity() {
         if (matcher.matches()) {
             return matcher.matches()
         } else {
-            Toast.makeText(
-                this,
-                "Please enter a valid Canadian phone number in the format +19999999999",
-                Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(this, "Please enter a valid Canadian phone number in the format +19999999999", Toast.LENGTH_SHORT).show()
 
             return false
         }
@@ -322,24 +297,18 @@ class CheckoutActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.nav_logout -> {
-                Toast.makeText(this, "User Logged Out", Toast.LENGTH_LONG).show()
-                FirebaseAuth.getInstance().signOut()
-                val homeIntent = Intent(this, MainActivity::class.java)
-                startActivity(homeIntent)
-                finish()
-            }
-
-            R.id.nav_product -> {
-                val mainIntent = Intent(this, ProductActivity::class.java)
-                startActivity(mainIntent)
-            }
-
-            R.id.nav_cart -> {
-                val cartIntent = Intent(this, CartActivity::class.java)
-                startActivity(cartIntent)
-            }
+        if (item.itemId == R.id.nav_logout) {
+            Toast.makeText(this, "User Logged Out", Toast.LENGTH_LONG).show()
+            FirebaseAuth.getInstance().signOut()
+            val homeIntent = Intent(this, MainActivity::class.java)
+            startActivity(homeIntent)
+            finish()
+        } else if (item.itemId == R.id.nav_product) {
+            val mainIntent = Intent(this, ProductActivity::class.java)
+            startActivity(mainIntent)
+        } else if (item.itemId == R.id.nav_cart) {
+            val cartIntent = Intent(this, CartActivity::class.java)
+            startActivity(cartIntent)
         }
         return true
     }
