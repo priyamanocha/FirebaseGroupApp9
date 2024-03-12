@@ -53,31 +53,30 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="22dp"
+            android:textSize="22sp"
             android:textColor="@color/black"
-            android:id="@+id/amounttext"
+            android:id="@+id/txtTotalAmount"
             android:layout_gravity="center_vertical"
-            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
             android:layout_weight="1"
-
             android:text="@string/amount"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/ttlamount"
+            android:id="@+id/txtAmount"
             android:layout_weight="4"
             android:text="@string/dollar"
-            android:textSize="22dp"
+            android:textSize="22sp"
             android:textColor="@color/black"
             android:layout_gravity="center_vertical"
-            android:layout_marginLeft="5dp"
+            android:layout_marginStart="5dp"
             />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_weight="1"
             android:id="@+id/btnCheckout"
-            android:layout_marginRight="10dp"
+            android:layout_marginEnd="10dp"
             android:layout_height="wrap_content"
             android:text="@string/checkout"
             android:layout_gravity="center_vertical"

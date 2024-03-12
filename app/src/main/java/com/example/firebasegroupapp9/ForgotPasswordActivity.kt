@@ -28,20 +28,26 @@ class ForgotPasswordActivity : AppCompatActivity() {
         }
 
         btnResetPassword.setOnClickListener {
-            FirebaseAuth.getInstance().sendPasswordResetEmail(txtEmail.text.toString())
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        Toast.makeText(this, "Password Reset Email Sent", Toast.LENGTH_LONG).show()
-                        startActivity(
-                            Intent(
-                                this@ForgotPasswordActivity,
-                                LoginActivity::class.java
+            val email = txtEmail.text.toString().trim()
+            if (email.isEmpty()) {
+                txtEmail.error = "Email is required."
+            } else {
+                FirebaseAuth.getInstance().sendPasswordResetEmail(txtEmail.text.toString())
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Toast.makeText(this, "Password Reset Email Sent", Toast.LENGTH_LONG)
+                                .show()
+                            startActivity(
+                                Intent(
+                                    this@ForgotPasswordActivity,
+                                    LoginActivity::class.java
+                                )
                             )
-                        )
-                    } else {
-                        Toast.makeText(this, "Failed to send Email", Toast.LENGTH_LONG).show()
+                        } else {
+                            Toast.makeText(this, "Failed to send Email", Toast.LENGTH_LONG).show()
+                        }
                     }
-                }
+            }
         }
     }
 }

@@ -9,7 +9,6 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.firebase.ui.database.FirebaseRecyclerAdapter
@@ -24,7 +23,7 @@ import com.google.firebase.storage.StorageReference
 class CartAdapter(options: FirebaseRecyclerOptions<Cart>, private var ttlamount: TextView) :
     FirebaseRecyclerAdapter<Cart, CartAdapter.MyViewHolder>(options) {
 
-//    private var totalItemTextView: TextView
+    //    private var totalItemTextView: TextView
     private var totalAmount: Double = 0.0
 //    private var totalItem: Int = 0
 
@@ -36,7 +35,6 @@ class CartAdapter(options: FirebaseRecyclerOptions<Cart>, private var ttlamount:
         val txtQuantity: TextView = itemView.findViewById(R.id.txtQuantity)
         val txtPrice: TextView = itemView.findViewById(R.id.txtPrice)
         val txtTotalPrice: TextView = itemView.findViewById(R.id.txtTotalPrice)
-        val cardView: CardView = itemView.findViewById(R.id.cardView)
         val btnAdd: Button = itemView.findViewById(R.id.btnAdd)
         val btnRemove: Button = itemView.findViewById(R.id.btnRemove)
     }
@@ -46,7 +44,7 @@ class CartAdapter(options: FirebaseRecyclerOptions<Cart>, private var ttlamount:
         updateTotalAmount()
         return MyViewHolder(inflater, parent)
     }
-    
+
     override fun onBindViewHolder(
         holder: MyViewHolder,
         position: Int,
@@ -55,45 +53,11 @@ class CartAdapter(options: FirebaseRecyclerOptions<Cart>, private var ttlamount:
         holder.txtName.text = model.name
         holder.txtPrice.text = "$" + model.price.toString() + "/ea"
         holder.txtQuantity.text = model.quantity.toString()
-        holder.txtTotalPrice.text = "Total: $" + (model.quantity * model.price).toString()
+        holder.txtTotalPrice.text = "Total: " + String.format("$%.2f",model.quantity * model.price)
         val imageUrl = model.url
         val storageRef: StorageReference =
             FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl)
         Glide.with(holder.imgProduct.context).load(storageRef).into(holder.imgProduct)
-
-//        val databaseReference: DatabaseReference = FirebaseDatabase.getInstance().getReference("cart").child(
-//            FirebaseAuth.getInstance().currentUser?.uid.toString())
-//        databaseReference.orderByKey().addListenerForSingleValueEvent(object :
-//            ValueEventListener {
-//            override fun onDataChange(dataSnapshot: DataSnapshot) {
-//                for (data in dataSnapshot.children) {
-//                    val cartItem = data.getValue(Cart::class.java)
-//                    holder.txtName.text = cartItem?.name ?: ""
-//                    holder.txtDescription.text =  data.child("description").getValue(String::class.java)
-//                    holder.txtPrice.text = (data.child("price").getValue(Double::class.java)
-//                        ?.times(model.quantity)).toString()
-//                    holder.txtQuantity.text =  model.quantity.toString()
-//
-//                    val imageUrl = data.child("url").getValue(String::class.java).toString()
-//                    val storageRef: StorageReference =
-//                        FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl)
-//                    Glide.with(holder.imgProduct.context).load(storageRef).into(holder.imgProduct)
-//                }
-//
-//            }
-//            override fun onCancelled(databaseError: DatabaseError) {
-//
-//            }
-//        })
-
-        holder.cardView.setOnClickListener { view ->
-            val intent = Intent(
-                view.context,
-                DetailActivity::class.java
-            )
-            intent.putExtra("productDetails", model)
-            view.context.startActivity(intent)
-        }
 
         holder.btnAdd.setOnClickListener { view ->
             val quantity = model.quantity + 1
@@ -105,7 +69,8 @@ class CartAdapter(options: FirebaseRecyclerOptions<Cart>, private var ttlamount:
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         holder.txtQuantity.text = quantity.toString()
-                        holder.txtTotalPrice.text = "Total: $" + (quantity * model.price).toString()
+                        holder.txtTotalPrice.text =
+                            "Total: " + String.format("$%.2f", quantity * model.price)
                     }
                 }.addOnFailureListener {
                     Log.e("Error", it.localizedMessage);
@@ -133,10 +98,10 @@ class CartAdapter(options: FirebaseRecyclerOptions<Cart>, private var ttlamount:
                         if (task.isSuccessful) {
                             holder.txtQuantity.text = quantity.toString()
                             holder.txtTotalPrice.text =
-                                "Total: $" + (quantity * model.price).toString()
+                                "Total: " + String.format("$%.2f", quantity * model.price)
                         }
                     }.addOnFailureListener {
-                        Log.e("Error", it.localizedMessage);
+                        Log.e("Error", it.localizedMessage)
                         Toast.makeText(view.context, it.localizedMessage, Toast.LENGTH_LONG).show()
                     }
             }

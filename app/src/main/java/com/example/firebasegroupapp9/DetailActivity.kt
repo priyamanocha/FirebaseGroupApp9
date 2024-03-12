@@ -9,12 +9,8 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 
@@ -61,18 +57,22 @@ class DetailActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.nav_logout) {
-            Toast.makeText(this, "User Logged Out", Toast.LENGTH_LONG).show()
-            FirebaseAuth.getInstance().signOut()
-            val homeIntent = Intent(this, MainActivity::class.java)
-            startActivity(homeIntent)
-            finish()
-        } else if (item.itemId == R.id.nav_home) {
-            val mainIntent = Intent(this, ProductActivity::class.java)
-            startActivity(mainIntent)
-        } else if (item.itemId == R.id.nav_cart) {
-            val cartIntent = Intent(this, CartActivity::class.java)
-            startActivity(cartIntent)
+        when (item.itemId) {
+            R.id.nav_logout -> {
+                Toast.makeText(this, "User Logged Out", Toast.LENGTH_LONG).show()
+                FirebaseAuth.getInstance().signOut()
+                val homeIntent = Intent(this, MainActivity::class.java)
+                startActivity(homeIntent)
+                finish()
+            }
+            R.id.nav_product -> {
+                val mainIntent = Intent(this, ProductActivity::class.java)
+                startActivity(mainIntent)
+            }
+            R.id.nav_cart -> {
+                val cartIntent = Intent(this, CartActivity::class.java)
+                startActivity(cartIntent)
+            }
         }
         return true
     }

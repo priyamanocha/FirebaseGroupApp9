@@ -18,16 +18,20 @@ class RegisterActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
 
-        var txtEmail: TextInputEditText = findViewById(R.id.txtEmail)
-        var txtPassword: TextInputEditText = findViewById(R.id.txtPassword)
-        var btnRegister: Button = findViewById(R.id.btnRegister)
-        var txtLogin: TextView = findViewById(R.id.txtLogin)
+        val txtEmail: TextInputEditText = findViewById(R.id.txtEmail)
+        val txtPassword: TextInputEditText = findViewById(R.id.txtPassword)
+        val btnRegister: Button = findViewById(R.id.btnRegister)
+        val txtLogin: TextView = findViewById(R.id.txtLogin)
 
         btnRegister.setOnClickListener {
-            val email = txtEmail.text.toString()
-            val password = txtPassword.text.toString()
+            val email = txtEmail.text.toString().trim()
+            val password = txtPassword.text.toString().trim()
 
-            if (email.isNotEmpty() && password.isNotEmpty()) {
+            if (email.isEmpty()) {
+                txtEmail.error = "Email is required."
+            } else if (password.isEmpty()) {
+                txtPassword.error = "Password is required."
+            } else {
                 auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener {
                     if (it.isSuccessful) {
                         Toast.makeText(

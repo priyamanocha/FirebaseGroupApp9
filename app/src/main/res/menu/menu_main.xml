@@ -1,9 +1,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/nav_home"
+        android:id="@+id/nav_product"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:title="Home" />
+        android:title="Products" />
     <item
         android:id="@+id/nav_cart"
         android:layout_width="wrap_content"

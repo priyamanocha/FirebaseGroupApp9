@@ -3,6 +3,7 @@ package com.example.firebasegroupapp9
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -20,7 +21,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
 class CartActivity : AppCompatActivity() {
-    private lateinit var ttlamount: TextView
+    private lateinit var txtAmount: TextView
     private var adapter: CartAdapter? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,18 +33,16 @@ class CartActivity : AppCompatActivity() {
         val query = FirebaseDatabase.getInstance().reference.child("cart").child(
             FirebaseAuth.getInstance().currentUser?.uid.toString()
         )
-
-
-
-
         val txtEmptyCart: TextView = findViewById(R.id.txtEmptyCart)
         val btnCheckout: Button = findViewById(R.id.btnCheckout)
+        txtAmount = findViewById(R.id.txtAmount)
+        val txtTotalAmount: TextView = findViewById(R.id.txtTotalAmount)
+
         val options =
             FirebaseRecyclerOptions.Builder<Cart>().setQuery(query, Cart::class.java)
                 .build()
-        val ttlamount: TextView = findViewById(R.id.ttlamount)
 
-        adapter = CartAdapter(options, ttlamount)
+        adapter = CartAdapter(options, txtAmount)
         val rView: RecyclerView = findViewById(R.id.recView)
         rView.layoutManager = LinearLayoutManager(this)
         rView.adapter = adapter
@@ -52,26 +51,25 @@ class CartActivity : AppCompatActivity() {
         query.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    txtEmptyCart.visibility = View.GONE;
-                    btnCheckout.visibility = View.VISIBLE;
+                    txtEmptyCart.visibility = View.GONE
+                    btnCheckout.visibility = View.VISIBLE
                 } else {
-                    txtEmptyCart.visibility = View.VISIBLE;
-                    btnCheckout.visibility = View.GONE;
+                    txtEmptyCart.visibility = View.VISIBLE
+                    btnCheckout.visibility = View.GONE
+                    txtAmount.visibility = View.GONE
+                    txtTotalAmount.visibility = View.GONE
                 }
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-                // Handle error
+                Log.e("Cart Activity", databaseError.message)
             }
         })
 
 
-
-        val gotoCheckout: Button = findViewById(R.id.btnCheckout)
-        gotoCheckout.setOnClickListener {
+        btnCheckout.setOnClickListener {
             val intent = Intent(this@CartActivity, CheckoutActivity::class.java)
-            val totalAmount = ttlamount.text.toString()
-            intent.putExtra("TOTAL_AMOUNT", totalAmount)
+            intent.putExtra("TOTAL_AMOUNT", txtAmount.text.toString())
             startActivity(intent)
         }
     }
@@ -87,18 +85,24 @@ class CartActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.nav_logout) {
-            Toast.makeText(this, "User Logged Out", Toast.LENGTH_LONG).show()
-            FirebaseAuth.getInstance().signOut()
-            val homeIntent = Intent(this, MainActivity::class.java)
-            startActivity(homeIntent)
-            finish()
-        } else if (item.itemId == R.id.nav_home) {
-            val mainIntent = Intent(this, ProductActivity::class.java)
-            startActivity(mainIntent)
-        } else if (item.itemId == R.id.nav_cart) {
-            val cartIntent = Intent(this, CartActivity::class.java)
-            startActivity(cartIntent)
+        when (item.itemId) {
+            R.id.nav_logout -> {
+                Toast.makeText(this, "User Logged Out", Toast.LENGTH_LONG).show()
+                FirebaseAuth.getInstance().signOut()
+                val homeIntent = Intent(this, MainActivity::class.java)
+                startActivity(homeIntent)
+                finish()
+            }
+
+            R.id.nav_product -> {
+                val mainIntent = Intent(this, ProductActivity::class.java)
+                startActivity(mainIntent)
+            }
+
+            R.id.nav_cart -> {
+                val cartIntent = Intent(this, CartActivity::class.java)
+                startActivity(cartIntent)
+            }
         }
         return true
     }

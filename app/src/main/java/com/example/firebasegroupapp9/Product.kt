@@ -11,5 +11,4 @@ data class Product(
     var size: String = "",
     var fullDescription: String = "",
     var price: Double = 0.0
-) : Serializable {
-}
+) : Serializable

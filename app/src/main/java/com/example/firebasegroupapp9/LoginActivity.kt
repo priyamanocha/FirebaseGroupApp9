@@ -18,17 +18,21 @@ class LoginActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         setContentView(R.layout.activity_login)
 
-        var txtEmail: TextInputEditText = findViewById(R.id.txtEmail)
-        var txtPassword: TextInputEditText = findViewById(R.id.txtPassword)
-        var btnLogin: Button = findViewById(R.id.btnLogin)
-        var txtRegister: TextView = findViewById(R.id.txtRegister)
-        var txtForgotPassword: TextView = findViewById(R.id.txtForgotPassword)
+        val txtEmail: TextInputEditText = findViewById(R.id.txtEmail)
+        val txtPassword: TextInputEditText = findViewById(R.id.txtPassword)
+        val btnLogin: Button = findViewById(R.id.btnLogin)
+        val txtRegister: TextView = findViewById(R.id.txtRegister)
+        val txtForgotPassword: TextView = findViewById(R.id.txtForgotPassword)
 
         btnLogin.setOnClickListener {
-            val email = txtEmail.text.toString()
-            val password = txtPassword.text.toString()
+            val email = txtEmail.text.toString().trim()
+            val password = txtPassword.text.toString().trim()
 
-            if (email.isNotEmpty() && password.isNotEmpty()) {
+            if (email.isEmpty()) {
+                txtEmail.error = "Email is required."
+            } else if (password.isEmpty()) {
+                txtPassword.error = "Password is required."
+            } else {
                 auth.signInWithEmailAndPassword(email, password).addOnCompleteListener {
                     if (it.isSuccessful) {
                         startActivity(Intent(this, ProductActivity::class.java))

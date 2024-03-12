@@ -14,8 +14,11 @@ import com.bumptech.glide.Glide
 import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 
@@ -58,12 +61,26 @@ class ProductAdapter(options: FirebaseRecyclerOptions<Product>) :
         }
 
 
+        val databaseReference: DatabaseReference =
+            FirebaseDatabase.getInstance().getReference("cart")
+        val firebaseUser = FirebaseAuth.getInstance().currentUser
 
+        if (firebaseUser != null) {
+            databaseReference.child(firebaseUser.uid).child(model.id)
+                .addListenerForSingleValueEvent(object :
+                    ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            holder.btnAddToCart.text = "Added"
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.e("Product Adapter", error.message)
+                    }
+                })
+        }
         holder.btnAddToCart.setOnClickListener { view ->
-            val databaseReference: DatabaseReference =
-                FirebaseDatabase.getInstance().getReference("cart")
-            val firebaseUser = FirebaseAuth.getInstance().currentUser
-
             if (firebaseUser != null) {
                 val cartItem = Cart(model.id, model.name, model.price, 1, model.url)
                 databaseReference.child(firebaseUser.uid).child(model.id).setValue(cartItem)
@@ -74,7 +91,7 @@ class ProductAdapter(options: FirebaseRecyclerOptions<Product>) :
                                 .show()
                         }
                     }.addOnFailureListener {
-                        Log.e("test", it.localizedMessage);
+                        Log.e("Product Adapter", it.localizedMessage.toString())
                         Toast.makeText(view.context, it.localizedMessage, Toast.LENGTH_LONG).show()
                     }
 
