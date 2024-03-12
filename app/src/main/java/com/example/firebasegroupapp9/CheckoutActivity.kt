@@ -35,12 +35,10 @@ class CheckoutActivity : AppCompatActivity() {
 
 
         val intent = intent
-
-        // Get the total amount from the intent
         val totalAmount = intent.getStringExtra("TOTAL_AMOUNT")
-
         val txtTotal: TextView = findViewById(R.id.txtTotal)
         txtTotal.text = "Total Amount: $totalAmount"
+
 
         val txtFirstname: EditText = findViewById(R.id.txtFirstname)
         val txtLastName: EditText = findViewById(R.id.txtLastName)
@@ -56,6 +54,7 @@ class CheckoutActivity : AppCompatActivity() {
         val txtValidity: EditText = findViewById(R.id.txtValidity)
         val txtCvv: EditText = findViewById(R.id.txtCvv)
         val btnCheckout: Button = findViewById(R.id.btnCheckout)
+
 
         btnCheckout.setOnClickListener {
 
@@ -85,10 +84,13 @@ class CheckoutActivity : AppCompatActivity() {
                 )
             ) {
                 val firebaseUser = FirebaseAuth.getInstance().currentUser?.uid
+
+
+
                 if (firebaseUser != null) {
                     val databaseReference: DatabaseReference =
                         FirebaseDatabase.getInstance().reference.child("orders").child(firebaseUser)
-                    val orderId = generateOrderNumber()
+                    val orderId = generateorderNumber()
 
                     val orderInfo = HashMap<String, Any>()
                     orderInfo["id"] = orderId
@@ -108,10 +110,19 @@ class CheckoutActivity : AppCompatActivity() {
                     orderInfo["orderDate"] = LocalDate.now().toString()
                     orderInfo["orderTime"] = LocalTime.now().toString()
                     val totalAmount = txtTotal.text.toString()
-                    orderInfo["totalAmount"] = totalAmount
+                    val amtparts = totalAmount.split(" ")
+                    val amtString = amtparts.last()
+                    orderInfo["totalAmount"] = amtString
 
-                    databaseReference.child(orderId.toString()).child("orderInfo")
-                        .setValue(orderInfo).addOnSuccessListener {
+
+                    databaseReference.child(orderId.toString()).child("orderinfo").setValue(orderInfo)
+
+                        .addOnSuccessListener {
+                            Toast.makeText(
+                                this,
+                                "Your Order is successfully placed",
+                                Toast.LENGTH_SHORT
+                            ).show()
 
                             val cartReference =
                                 FirebaseDatabase.getInstance().reference.child("cart")
@@ -124,11 +135,9 @@ class CheckoutActivity : AppCompatActivity() {
                                         cartItem?.let {
                                             databaseReference.child(orderId.toString())
                                                 .child("products").push()
-                                                .setValue(it)
-                                        }
+                                                .setValue(it)                                        }
                                     }
                                     dataSnapshot.ref.removeValue()
-
                                 }
 
                                 override fun onCancelled(databaseError: DatabaseError) {
@@ -138,18 +147,8 @@ class CheckoutActivity : AppCompatActivity() {
                                         databaseError.toException()
                                     )
                                 }
+
                             })
-                            Toast.makeText(
-                                this,
-                                "Your Order is successfully placed",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            startActivity(
-                                Intent(
-                                    this@CheckoutActivity,
-                                    ProductActivity::class.java
-                                )
-                            )
                         }
                         .addOnFailureListener { exception ->
                             Toast.makeText(
@@ -158,6 +157,9 @@ class CheckoutActivity : AppCompatActivity() {
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
+                    val intent = Intent(this@CheckoutActivity, Orderconfirmed::class.java)
+                    intent.putExtra("ORDER_ID", orderId.toString())
+                    startActivity(intent)
                 } else {
                     Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show()
                 }
@@ -165,7 +167,7 @@ class CheckoutActivity : AppCompatActivity() {
         }
     }
 
-    private fun generateOrderNumber(): Int {
+    private fun generateorderNumber(): Int {
         return Random.nextInt(10000000, 99999999 + 1)
     }
 
@@ -322,24 +324,18 @@ class CheckoutActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.nav_logout -> {
-                Toast.makeText(this, "User Logged Out", Toast.LENGTH_LONG).show()
-                FirebaseAuth.getInstance().signOut()
-                val homeIntent = Intent(this, MainActivity::class.java)
-                startActivity(homeIntent)
-                finish()
-            }
-
-            R.id.nav_product -> {
-                val mainIntent = Intent(this, ProductActivity::class.java)
-                startActivity(mainIntent)
-            }
-
-            R.id.nav_cart -> {
-                val cartIntent = Intent(this, CartActivity::class.java)
-                startActivity(cartIntent)
-            }
+        if (item.itemId == R.id.nav_logout) {
+            Toast.makeText(this, "User Logged Out", Toast.LENGTH_LONG).show()
+            FirebaseAuth.getInstance().signOut()
+            val homeIntent = Intent(this, MainActivity::class.java)
+            startActivity(homeIntent)
+            finish()
+        } else if (item.itemId == R.id.nav_product) {
+            val mainIntent = Intent(this, ProductActivity::class.java)
+            startActivity(mainIntent)
+        } else if (item.itemId == R.id.nav_cart) {
+            val cartIntent = Intent(this, CartActivity::class.java)
+            startActivity(cartIntent)
         }
         return true
     }

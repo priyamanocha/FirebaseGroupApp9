@@ -58,26 +58,33 @@ class CartAdapter(options: FirebaseRecyclerOptions<Cart>, private var ttlamount:
         val storageRef: StorageReference =
             FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl)
         Glide.with(holder.imgProduct.context).load(storageRef).into(holder.imgProduct)
+        updateTotalAmount()
 
         holder.btnAdd.setOnClickListener { view ->
-            val quantity = model.quantity + 1
-            val databaseReference: DatabaseReference =
-                FirebaseDatabase.getInstance().getReference("cart").child(
-                    FirebaseAuth.getInstance().currentUser?.uid.toString()
-                )
-            databaseReference.child(model.id).child("quantity").setValue(quantity)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        holder.txtQuantity.text = quantity.toString()
-                        holder.txtTotalPrice.text =
-                            "Total: " + String.format("$%.2f", quantity * model.price)
+            val quantity = model.quantity
+            if (quantity < 9) {
+                val updatedQuantity = quantity + 1
+                val databaseReference: DatabaseReference =
+                    FirebaseDatabase.getInstance().getReference("cart").child(
+                        FirebaseAuth.getInstance().currentUser?.uid.toString()
+                    )
+                databaseReference.child(model.id).child("quantity").setValue(updatedQuantity)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            holder.txtQuantity.text = updatedQuantity.toString()
+                            holder.txtTotalPrice.text =
+                                "Total: " + String.format("$%.2f", updatedQuantity * model.price)
+                        }
+                    }.addOnFailureListener {
+                        Log.e("Error", it.localizedMessage)
+                        Toast.makeText(view.context, it.localizedMessage, Toast.LENGTH_LONG).show()
                     }
-                }.addOnFailureListener {
-                    Log.e("Error", it.localizedMessage);
-                    Toast.makeText(view.context, it.localizedMessage, Toast.LENGTH_LONG).show()
-                }
-
+                updateTotalAmount()
+            } else {
+                Toast.makeText(view.context, "Maximum quantity limit reached", Toast.LENGTH_SHORT).show()
+            }
         }
+
 
         holder.btnRemove.setOnClickListener { view ->
             val databaseReference: DatabaseReference =
@@ -105,7 +112,7 @@ class CartAdapter(options: FirebaseRecyclerOptions<Cart>, private var ttlamount:
                         Toast.makeText(view.context, it.localizedMessage, Toast.LENGTH_LONG).show()
                     }
             }
-
+            updateTotalAmount()
         }
     }
 
