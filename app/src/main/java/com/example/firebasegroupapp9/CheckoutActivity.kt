@@ -18,6 +18,8 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import java.time.LocalDate
+import java.time.LocalTime
 
 import java.util.Calendar
 import java.util.regex.Pattern
@@ -37,12 +39,8 @@ class CheckoutActivity : AppCompatActivity() {
         // Get the total amount from the intent
         val totalAmount = intent.getStringExtra("TOTAL_AMOUNT")
 
-        // Now you can use the totalAmount as needed
-        // For example, set it to a TextView
-
         val txtTotal: TextView = findViewById(R.id.txtTotal)
         txtTotal.text = "Total Amount: $totalAmount"
-
 
         val txtFirstname: EditText = findViewById(R.id.txtFirstname)
         val txtLastName: EditText = findViewById(R.id.txtLastName)
@@ -87,38 +85,33 @@ class CheckoutActivity : AppCompatActivity() {
                 )
             ) {
                 val firebaseUser = FirebaseAuth.getInstance().currentUser?.uid
-
-
-
                 if (firebaseUser != null) {
                     val databaseReference: DatabaseReference =
                         FirebaseDatabase.getInstance().reference.child("orders").child(firebaseUser)
-                    val userData = HashMap<String, Any>()
-                    userData["firstName"] = firstname
-                    userData["lastName"] = lastName
-                    userData["email"] = email
-                    userData["phoneNumber"] = phoneNumber
-                    userData["address"] = address
-                    userData["postalCode"] = postalCode
-                    userData["city"] = city
-                    userData["province"] = province
-                    userData["country"] = country
-                    userData["nameOnCard"] = nameOnCard
-                    userData["cardNumber"] = cardNumber
-                    userData["validity"] = validity
-                    userData["cvv"] = cvv
+                    val orderId = generateOrderNumber()
 
+                    val orderInfo = HashMap<String, Any>()
+                    orderInfo["id"] = orderId
+                    orderInfo["firstName"] = firstname
+                    orderInfo["lastName"] = lastName
+                    orderInfo["email"] = email
+                    orderInfo["phoneNumber"] = phoneNumber
+                    orderInfo["address"] = address
+                    orderInfo["postalCode"] = postalCode
+                    orderInfo["city"] = city
+                    orderInfo["province"] = province
+                    orderInfo["country"] = country
+                    orderInfo["nameOnCard"] = nameOnCard
+                    orderInfo["cardNumber"] = cardNumber
+                    orderInfo["validity"] = validity
+                    orderInfo["cvv"] = cvv
+                    orderInfo["orderDate"] = LocalDate.now().toString()
+                    orderInfo["orderTime"] = LocalTime.now().toString()
+                    val totalAmount = txtTotal.text.toString()
+                    orderInfo["totalAmount"] = totalAmount
 
-                    val orderNum = generateorderNumber()
-
-                    databaseReference.child(orderNum.toString()).setValue(userData)
-
-                        .addOnSuccessListener {
-                            Toast.makeText(
-                                this,
-                                "Your Order is successfully placed",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                    databaseReference.child(orderId.toString()).child("orderInfo")
+                        .setValue(orderInfo).addOnSuccessListener {
 
                             val cartReference =
                                 FirebaseDatabase.getInstance().reference.child("cart")
@@ -129,10 +122,13 @@ class CheckoutActivity : AppCompatActivity() {
                                     for (cartSnapshot in dataSnapshot.children) {
                                         val cartItem = cartSnapshot.getValue(Cart::class.java)
                                         cartItem?.let {
-                                            databaseReference.push().setValue(it)
+                                            databaseReference.child(orderId.toString())
+                                                .child("products").push()
+                                                .setValue(it)
                                         }
                                     }
                                     dataSnapshot.ref.removeValue()
+
                                 }
 
                                 override fun onCancelled(databaseError: DatabaseError) {
@@ -142,8 +138,18 @@ class CheckoutActivity : AppCompatActivity() {
                                         databaseError.toException()
                                     )
                                 }
-
                             })
+                            Toast.makeText(
+                                this,
+                                "Your Order is successfully placed",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            startActivity(
+                                Intent(
+                                    this@CheckoutActivity,
+                                    ProductActivity::class.java
+                                )
+                            )
                         }
                         .addOnFailureListener { exception ->
                             Toast.makeText(
@@ -159,7 +165,7 @@ class CheckoutActivity : AppCompatActivity() {
         }
     }
 
-    fun generateorderNumber(): Int {
+    private fun generateOrderNumber(): Int {
         return Random.nextInt(10000000, 99999999 + 1)
     }
 
@@ -316,18 +322,24 @@ class CheckoutActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.nav_logout) {
-            Toast.makeText(this, "User Logged Out", Toast.LENGTH_LONG).show()
-            FirebaseAuth.getInstance().signOut()
-            val homeIntent = Intent(this, MainActivity::class.java)
-            startActivity(homeIntent)
-            finish()
-        } else if (item.itemId == R.id.nav_product) {
-            val mainIntent = Intent(this, ProductActivity::class.java)
-            startActivity(mainIntent)
-        } else if (item.itemId == R.id.nav_cart) {
-            val cartIntent = Intent(this, CartActivity::class.java)
-            startActivity(cartIntent)
+        when (item.itemId) {
+            R.id.nav_logout -> {
+                Toast.makeText(this, "User Logged Out", Toast.LENGTH_LONG).show()
+                FirebaseAuth.getInstance().signOut()
+                val homeIntent = Intent(this, MainActivity::class.java)
+                startActivity(homeIntent)
+                finish()
+            }
+
+            R.id.nav_product -> {
+                val mainIntent = Intent(this, ProductActivity::class.java)
+                startActivity(mainIntent)
+            }
+
+            R.id.nav_cart -> {
+                val cartIntent = Intent(this, CartActivity::class.java)
+                startActivity(cartIntent)
+            }
         }
         return true
     }
