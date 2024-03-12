@@ -17,6 +17,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 import java.util.Calendar
 import java.util.regex.Pattern
@@ -81,9 +82,11 @@ class CheckoutActivity : AppCompatActivity() {
                     city
                 ) && validateCanadianAddress(province) && validateCountry(country) && validateName(
                     nameOnCard
-                ) && validateCardNumber(cardNumber) && validateExpiryDate(validity) && validateCVV(cvv)
+                ) && validateCardNumber(cardNumber) && validateExpiryDate(validity) && validateCVV(
+                    cvv
+                )
             ) {
-                val userId = FirebaseAuth.getInstance().currentUser?.uid
+                val firebaseUser = FirebaseAuth.getInstance().currentUser?.uid
 
 
 
@@ -108,7 +111,7 @@ class CheckoutActivity : AppCompatActivity() {
 
                     val orderNum = generateorderNumber()
 
-                    userRef.child(orderNum.toString()).setValue(userData)
+                    databaseReference.child(orderNum.toString()).setValue(userData)
 
                         .addOnSuccessListener {
                             Toast.makeText(
@@ -117,7 +120,9 @@ class CheckoutActivity : AppCompatActivity() {
                                 Toast.LENGTH_SHORT
                             ).show()
 
-                            val cartReference: DatabaseReference = FirebaseDatabase.getInstance().reference.child("cart").child(firebaseUser)
+                            val cartReference =
+                                FirebaseDatabase.getInstance().reference.child("cart")
+                                    .child(firebaseUser)
                             cartReference.addListenerForSingleValueEvent(object :
                                 ValueEventListener {
                                 override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -129,8 +134,13 @@ class CheckoutActivity : AppCompatActivity() {
                                     }
                                     dataSnapshot.ref.removeValue()
                                 }
+
                                 override fun onCancelled(databaseError: DatabaseError) {
-                                    Log.e("CheckoutActivity", "onCancelled", databaseError.toException())
+                                    Log.e(
+                                        "CheckoutActivity",
+                                        "onCancelled",
+                                        databaseError.toException()
+                                    )
                                 }
 
                             })
@@ -148,9 +158,11 @@ class CheckoutActivity : AppCompatActivity() {
             }
         }
     }
+
     fun generateorderNumber(): Int {
         return Random.nextInt(10000000, 99999999 + 1)
     }
+
     private fun validateName(name: String): Boolean {
         val trimmedName = name.trim()
         if (trimmedName.isEmpty()) {
@@ -176,6 +188,7 @@ class CheckoutActivity : AppCompatActivity() {
             return false
         }
     }
+
     private fun validateExpiryDate(expiryDate: String): Boolean {
         if (expiryDate.length == 4) {
             val enteredMonth = expiryDate.substring(0, 2).toIntOrNull()
@@ -197,6 +210,7 @@ class CheckoutActivity : AppCompatActivity() {
         Toast.makeText(this, "Invalid expiry date format", Toast.LENGTH_SHORT).show()
         return false
     }
+
     private fun validatePhoneNumber(phoneNumber: String): Boolean {
         val phonePattern = "^\\+1\\d{10}\$"
         val pattern = Pattern.compile(phonePattern)
@@ -204,7 +218,11 @@ class CheckoutActivity : AppCompatActivity() {
         if (matcher.matches()) {
             return matcher.matches()
         } else {
-            Toast.makeText(this, "Please enter a valid Canadian phone number in the format +19999999999", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                this,
+                "Please enter a valid Canadian phone number in the format +19999999999",
+                Toast.LENGTH_SHORT
+            ).show()
 
             return false
         }
@@ -304,7 +322,7 @@ class CheckoutActivity : AppCompatActivity() {
             val homeIntent = Intent(this, MainActivity::class.java)
             startActivity(homeIntent)
             finish()
-        } else if (item.itemId == R.id.nav_home) {
+        } else if (item.itemId == R.id.nav_product) {
             val mainIntent = Intent(this, ProductActivity::class.java)
             startActivity(mainIntent)
         } else if (item.itemId == R.id.nav_cart) {
