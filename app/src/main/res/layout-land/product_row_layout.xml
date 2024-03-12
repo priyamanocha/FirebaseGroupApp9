@@ -6,10 +6,11 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView"
-        android:layout_width="match_parent"
+        android:layout_width="600dp"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         app:cardCornerRadius="15dp"
+        android:layout_centerHorizontal="true"
         app:cardElevation="15dp">
 
         <RelativeLayout
@@ -80,6 +81,7 @@
                 android:layout_marginLeft="270dp"
                 android:layout_marginTop="10dp"
                 android:backgroundTint="@color/teal"
+                android:layout_alignParentEnd="true"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
                 android:text="Add to Cart"

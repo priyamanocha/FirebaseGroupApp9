@@ -102,17 +102,19 @@
                 android:text="Full Description"
                 android:textAlignment="textStart"
                 android:textSize="14sp" />
-        </LinearLayout>
-    </ScrollView>
 
-    <Button
-        android:id="@+id/btnAddToCart"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:backgroundTint="@color/teal"
-        android:padding="10dp"
-        android:text="Add to Cart"
-        android:textSize="14sp"
-        app:cornerRadius="0dp" />
+            <Button
+                android:id="@+id/btnAddToCart"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:backgroundTint="@color/teal"
+                android:padding="10dp"
+                android:text="Add to Cart"
+                android:textSize="14sp"
+                android:layout_marginBottom="0.3in"
+                app:cornerRadius="0dp" />
+        </LinearLayout>
+
+    </ScrollView>
 </LinearLayout>
