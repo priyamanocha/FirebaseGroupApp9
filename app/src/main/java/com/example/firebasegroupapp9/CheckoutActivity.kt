@@ -33,7 +33,13 @@ class CheckoutActivity : AppCompatActivity() {
 
 
         val intent = intent
+
+        // Get the total amount from the intent
         val totalAmount = intent.getStringExtra("TOTAL_AMOUNT")
+
+        // Now you can use the totalAmount as needed
+        // For example, set it to a TextView
+
         val txtTotal: TextView = findViewById(R.id.txtTotal)
         txtTotal.text = "Total Amount: $totalAmount"
 
@@ -76,7 +82,9 @@ class CheckoutActivity : AppCompatActivity() {
                     city
                 ) && validateCanadianAddress(province) && validateCountry(country) && validateName(
                     nameOnCard
-                ) && validateCardNumber(cardNumber) && validateExpiryDate(validity) && validateCVV(cvv)
+                ) && validateCardNumber(cardNumber) && validateExpiryDate(validity) && validateCVV(
+                    cvv
+                )
             ) {
                 val firebaseUser = FirebaseAuth.getInstance().currentUser?.uid
 
@@ -103,7 +111,7 @@ class CheckoutActivity : AppCompatActivity() {
 
                     val orderNum = generateorderNumber()
 
-                    databaseReference.child(orderNum.toString()).child("orderinfo").setValue(userData)
+                    databaseReference.child(orderNum.toString()).setValue(userData)
 
                         .addOnSuccessListener {
                             Toast.makeText(
@@ -112,20 +120,27 @@ class CheckoutActivity : AppCompatActivity() {
                                 Toast.LENGTH_SHORT
                             ).show()
 
-                            val cartReference: DatabaseReference = FirebaseDatabase.getInstance().reference.child("cart").child(firebaseUser)
+                            val cartReference =
+                                FirebaseDatabase.getInstance().reference.child("cart")
+                                    .child(firebaseUser)
                             cartReference.addListenerForSingleValueEvent(object :
                                 ValueEventListener {
                                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                                     for (cartSnapshot in dataSnapshot.children) {
                                         val cartItem = cartSnapshot.getValue(Cart::class.java)
                                         cartItem?.let {
-                                            databaseReference.child(orderNum.toString()).child("products").push().setValue(it)
+                                            databaseReference.push().setValue(it)
                                         }
                                     }
                                     dataSnapshot.ref.removeValue()
                                 }
+
                                 override fun onCancelled(databaseError: DatabaseError) {
-                                    Log.e("CheckoutActivity", "onCancelled", databaseError.toException())
+                                    Log.e(
+                                        "CheckoutActivity",
+                                        "onCancelled",
+                                        databaseError.toException()
+                                    )
                                 }
 
                             })
@@ -137,20 +152,17 @@ class CheckoutActivity : AppCompatActivity() {
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
-                    val intent = Intent(this@CheckoutActivity, Orderconfirmed::class.java)
-                    intent.putExtra("ORDER_ID", orderNum.toString())
-                    startActivity(intent)
                 } else {
                     Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show()
                 }
             }
-
-
         }
     }
+
     fun generateorderNumber(): Int {
         return Random.nextInt(10000000, 99999999 + 1)
     }
+
     private fun validateName(name: String): Boolean {
         val trimmedName = name.trim()
         if (trimmedName.isEmpty()) {
@@ -176,6 +188,7 @@ class CheckoutActivity : AppCompatActivity() {
             return false
         }
     }
+
     private fun validateExpiryDate(expiryDate: String): Boolean {
         if (expiryDate.length == 4) {
             val enteredMonth = expiryDate.substring(0, 2).toIntOrNull()
@@ -193,9 +206,11 @@ class CheckoutActivity : AppCompatActivity() {
                 }
             }
         }
+        // If entered date format is incorrect
         Toast.makeText(this, "Invalid expiry date format", Toast.LENGTH_SHORT).show()
         return false
     }
+
     private fun validatePhoneNumber(phoneNumber: String): Boolean {
         val phonePattern = "^\\+1\\d{10}\$"
         val pattern = Pattern.compile(phonePattern)
@@ -203,7 +218,11 @@ class CheckoutActivity : AppCompatActivity() {
         if (matcher.matches()) {
             return matcher.matches()
         } else {
-            Toast.makeText(this, "Please enter a valid Canadian phone number in the format +19999999999", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                this,
+                "Please enter a valid Canadian phone number in the format +19999999999",
+                Toast.LENGTH_SHORT
+            ).show()
 
             return false
         }
